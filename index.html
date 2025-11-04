@@ -1685,8 +1685,8 @@
             <ol>
                 <li>Navigate to the course you want to download</li>
                 <li>In the left sidebar, click on <strong>"Modules"</strong></li>
-                <li>Once you're in Modules, look for the course settings or options menu</li>
-                <li>Click on <strong>"Course Content Export"</strong> (this may be in the settings menu or as a button in the modules page)</li>
+                <li>Once you're in Modules, look for the Cousre Content Export Butotn at top</li>
+                <li>Click on <strong>"Course Content Export"</strong> </li>
                 <li>Select <strong>"Course"</strong> as the export type</li>
                 <li>Click <strong>"Create Export"</strong> or <strong>"Export Course Content"</strong></li>
                 <li>Wait for Canvas to prepare the export (this may take a few minutes)</li>
@@ -1781,16 +1781,18 @@
             </div>
             <div style="margin-top: 1rem;">
                 <label class="setting-label" style="font-size: 0.9rem; margin-bottom: 0.5rem;">Gradient Background</label>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                    <input type="text" id="backgroundGradientInput" placeholder="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" style="flex: 1; padding: 0.5rem; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; color: #fff; font-size: 0.85rem; font-family: monospace;">
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
-                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
-                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
-                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
-                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
-                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #30cfd0 0%, #330867 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);"></div>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                    <div id="backgroundGradientDisplay" style="width: 60px; height: 40px; border: 2px solid rgba(255,255,255,0.5); border-radius: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer; position: relative;" title="Click to select gradient">
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.8rem; color: rgba(255,255,255,0.8);">G</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        <div class="gradient-circle" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <div class="gradient-circle" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                        <div class="gradient-circle" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                        <div class="gradient-circle" data-gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+                        <div class="gradient-circle" data-gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+                        <div class="gradient-circle" data-gradient="linear-gradient(135deg, #30cfd0 0%, #330867 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1928,10 +1930,6 @@
                 }
             }
             
-            // Apply background on load
-            applyBackground();
-            updateColorPickerSelection();
-            
             // Load dropdown values
             if (vocabStyle) vocabStyle.value = settings.vocabStyle || 'color';
             if (practiceStyle) practiceStyle.value = settings.practiceStyle || 'color';
@@ -1944,10 +1942,18 @@
             if (practiceColorDisplay) practiceColorDisplay.style.background = settings.practiceColor || '#006400';
             if (backgroundColorDisplay) backgroundColorDisplay.style.background = settings.backgroundColor || '#000000';
             
-            // Load gradient input
-            const backgroundGradientInput = document.getElementById('backgroundGradientInput');
-            if (backgroundGradientInput && settings.backgroundGradient) {
-                backgroundGradientInput.value = settings.backgroundGradient;
+            // Load gradient display
+            const backgroundGradientDisplay = document.getElementById('backgroundGradientDisplay');
+            if (backgroundGradientDisplay) {
+                if (settings.backgroundGradient) {
+                    backgroundGradientDisplay.style.background = settings.backgroundGradient;
+                    const label = backgroundGradientDisplay.querySelector('div');
+                    if (label) label.style.display = 'none';
+                } else {
+                    backgroundGradientDisplay.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    const label = backgroundGradientDisplay.querySelector('div');
+                    if (label) label.style.display = 'block';
+                }
             }
             
             // Highlight active gradient circle
@@ -1959,6 +1965,10 @@
                     }
                 });
             }
+            
+            // Apply background on load (after all settings are loaded)
+            applyBackground();
+            updateColorPickerSelection();
             
             // Load font size
             if (fontSizeSlider) fontSizeSlider.value = settings.fontSize || 16;
@@ -2072,8 +2082,12 @@
                     settings.backgroundImage = null; // Clear image when selecting color
                     settings.backgroundGradient = null; // Clear gradient when selecting color
                     if (backgroundColorDisplay) backgroundColorDisplay.style.background = color;
-                    const gradientInput = document.getElementById('backgroundGradientInput');
-                    if (gradientInput) gradientInput.value = '';
+                    const gradientDisplay = document.getElementById('backgroundGradientDisplay');
+                    if (gradientDisplay) {
+                        gradientDisplay.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        const label = gradientDisplay.querySelector('div');
+                        if (label) label.style.display = 'block';
+                    }
                     applyBackground();
                 saveSettings();
             });
@@ -2091,8 +2105,12 @@
                         settings.backgroundImage = event.target.result;
                         settings.backgroundColor = null; // Clear color when selecting image
                         settings.backgroundGradient = null; // Clear gradient when selecting image
-                        const gradientInput = document.getElementById('backgroundGradientInput');
-                        if (gradientInput) gradientInput.value = '';
+                        const gradientDisplay = document.getElementById('backgroundGradientDisplay');
+                        if (gradientDisplay) {
+                            gradientDisplay.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                            const label = gradientDisplay.querySelector('div');
+                            if (label) label.style.display = 'block';
+                        }
                         applyBackground();
                         updateColorPickerSelection();
                         saveSettings();
@@ -2101,46 +2119,53 @@
                 }
             });
             
-            // Gradient background input
-            const backgroundGradientInput = document.getElementById('backgroundGradientInput');
-            if (backgroundGradientInput) {
-                backgroundGradientInput.addEventListener('input', (e) => {
-                    const gradient = e.target.value.trim();
-                    if (gradient) {
-                        settings.backgroundGradient = gradient;
-                        settings.backgroundColor = null; // Clear solid color
-                        settings.backgroundImage = null; // Clear image
-                        applyBackground();
-                        saveSettings();
+            // Gradient background display and circles
+            const backgroundGradientDisplay = document.getElementById('backgroundGradientDisplay');
+            const gradientCircles = document.querySelectorAll('.gradient-circle');
+            
+            // Function to apply gradient
+            function applyGradient(gradient) {
+                settings.backgroundGradient = gradient;
+                settings.backgroundColor = null; // Clear solid color
+                settings.backgroundImage = null; // Clear image
+                
+                // Update display box
+                if (backgroundGradientDisplay) {
+                    backgroundGradientDisplay.style.background = gradient;
+                    const label = backgroundGradientDisplay.querySelector('div');
+                    if (label) label.style.display = 'none';
+                }
+                
+                // Update active state on circles
+                gradientCircles.forEach(c => c.style.border = '2px solid rgba(255,255,255,0.5)');
+                gradientCircles.forEach(circle => {
+                    if (circle.getAttribute('data-gradient') === gradient) {
+                        circle.style.border = '2px solid #6ca0ff';
                     }
                 });
                 
-                backgroundGradientInput.addEventListener('blur', (e) => {
-                    const gradient = e.target.value.trim();
-                    if (gradient) {
-                        settings.backgroundGradient = gradient;
-                        settings.backgroundColor = null;
-                        settings.backgroundImage = null;
-                        applyBackground();
-                        saveSettings();
+                applyBackground();
+                saveSettings();
+            }
+            
+            // Click on gradient display box - select first preset or show first circle
+            if (backgroundGradientDisplay) {
+                backgroundGradientDisplay.addEventListener('click', () => {
+                    // Select first preset if none selected, otherwise do nothing (user clicks circles)
+                    if (!settings.backgroundGradient) {
+                        const firstGradient = gradientCircles[0]?.getAttribute('data-gradient');
+                        if (firstGradient) {
+                            applyGradient(firstGradient);
+                        }
                     }
                 });
             }
             
             // Gradient circle presets
-            const gradientCircles = document.querySelectorAll('.gradient-circle');
             gradientCircles.forEach(circle => {
                 circle.addEventListener('click', () => {
                     const gradient = circle.getAttribute('data-gradient');
-                    settings.backgroundGradient = gradient;
-                    settings.backgroundColor = null; // Clear solid color
-                    settings.backgroundImage = null; // Clear image
-                    if (backgroundGradientInput) backgroundGradientInput.value = gradient;
-                    // Update active state
-                    gradientCircles.forEach(c => c.style.border = '2px solid rgba(255,255,255,0.5)');
-                    circle.style.border = '2px solid #6ca0ff';
-                    applyBackground();
-                    saveSettings();
+                    applyGradient(gradient);
                 });
             });
             
