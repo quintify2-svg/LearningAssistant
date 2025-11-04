@@ -5712,8 +5712,11 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
             const html = document.documentElement;
             
             if (settings.backgroundImage) {
-                // Clear gradient CSS variable
-                document.documentElement.style.setProperty('--background-gradient', 'none');
+                // Remove gradient style tag if it exists
+                const gradientStyle = document.getElementById('gradient-background-style');
+                if (gradientStyle) {
+                    gradientStyle.remove();
+                }
                 // Apply image background that fills the entire screen
                 body.style.backgroundImage = `url(${settings.backgroundImage})`;
                 body.style.backgroundSize = 'cover';
@@ -5729,23 +5732,46 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
                 // Apply accent colors for image background
                 applyAccentColors('#667eea', '#764ba2');
             } else if (settings.backgroundGradient) {
-                // Apply gradient background - use direct style setting with !important
+                // Apply gradient background - inject style tag for maximum override
                 const gradientValue = settings.backgroundGradient;
+                console.log('Applying gradient:', gradientValue);
                 
-                // Set background properties individually with !important flag
-                body.style.setProperty('background', gradientValue, 'important');
-                body.style.setProperty('background-color', '#000', 'important');
-                body.style.setProperty('background-size', 'cover', 'important');
-                body.style.setProperty('background-position', 'center', 'important');
-                body.style.setProperty('background-repeat', 'no-repeat', 'important');
-                body.style.setProperty('background-attachment', 'fixed', 'important');
+                // Remove any existing gradient style tag
+                const existingStyle = document.getElementById('gradient-background-style');
+                if (existingStyle) {
+                    existingStyle.remove();
+                }
                 
-                html.style.setProperty('background', gradientValue, 'important');
-                html.style.setProperty('background-color', '#000', 'important');
-                html.style.setProperty('background-size', 'cover', 'important');
-                html.style.setProperty('background-position', 'center', 'important');
-                html.style.setProperty('background-repeat', 'no-repeat', 'important');
-                html.style.setProperty('background-attachment', 'fixed', 'important');
+                // Create and inject style tag with !important rules
+                const styleTag = document.createElement('style');
+                styleTag.id = 'gradient-background-style';
+                styleTag.textContent = `
+                    html {
+                        background: ${gradientValue} !important;
+                        background-color: #000 !important;
+                        background-size: cover !important;
+                        background-position: center !important;
+                        background-repeat: no-repeat !important;
+                        background-attachment: fixed !important;
+                        min-height: 100% !important;
+                    }
+                    body {
+                        background: ${gradientValue} !important;
+                        background-color: #000 !important;
+                        background-size: cover !important;
+                        background-position: center !important;
+                        background-repeat: no-repeat !important;
+                        background-attachment: fixed !important;
+                        min-height: 100vh !important;
+                    }
+                `;
+                document.head.appendChild(styleTag);
+                
+                // Force immediate application with direct style setting
+                setTimeout(() => {
+                    body.style.cssText = body.style.cssText.replace(/background[^;]*;?/g, '') + `background: ${gradientValue} !important; background-color: #000 !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; background-attachment: fixed !important;`;
+                    html.style.cssText = html.style.cssText.replace(/background[^;]*;?/g, '') + `background: ${gradientValue} !important; background-color: #000 !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; background-attachment: fixed !important;`;
+                }, 0);
                 
                 // Apply accent colors for gradient (use first color in gradient)
                 const firstColorMatch = settings.backgroundGradient.match(/#[0-9a-fA-F]{6}/);
@@ -5755,6 +5781,11 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
                     applyAccentColors('#667eea', '#764ba2');
                 }
             } else {
+                // Remove gradient style tag if it exists
+                const gradientStyle = document.getElementById('gradient-background-style');
+                if (gradientStyle) {
+                    gradientStyle.remove();
+                }
                 // Apply solid color background (handle both hex and legacy names)
                 let bgColor = '#000000';
                 if (settings.backgroundColor) {
