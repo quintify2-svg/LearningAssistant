@@ -1541,6 +1541,16 @@
             animation: scaleIn 0.3s ease-out, glowPulse 2s infinite;
         }
         
+        /* Gradient circle styles */
+        .gradient-circle {
+            transition: all 0.3s ease;
+        }
+        
+        .gradient-circle:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(108, 160, 255, 0.6);
+        }
+        
         /* Loading spinner uses the enhanced version defined earlier */
         
         /* File upload area */
@@ -1769,6 +1779,20 @@
                     <span class="upload-icon">+</span>
                 </div>
             </div>
+            <div style="margin-top: 1rem;">
+                <label class="setting-label" style="font-size: 0.9rem; margin-bottom: 0.5rem;">Gradient Background</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <input type="text" id="backgroundGradientInput" placeholder="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" style="flex: 1; padding: 0.5rem; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; color: #fff; font-size: 0.85rem; font-family: monospace;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+                    <div class="gradient-circle" data-gradient="linear-gradient(135deg, #30cfd0 0%, #330867 100%)" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);"></div>
+                </div>
+            </div>
         </div>
         
         <div class="setting-group">
@@ -1846,6 +1870,7 @@
             animations: true,
             backgroundColor: '#000000',
             backgroundImage: null,
+            backgroundGradient: null,
             vocabColor: '#00008b',
             vocabStyle: 'color',
             practiceColor: '#006400',
@@ -1918,6 +1943,22 @@
             if (vocabColorDisplay) vocabColorDisplay.style.background = settings.vocabColor || '#00008b';
             if (practiceColorDisplay) practiceColorDisplay.style.background = settings.practiceColor || '#006400';
             if (backgroundColorDisplay) backgroundColorDisplay.style.background = settings.backgroundColor || '#000000';
+            
+            // Load gradient input
+            const backgroundGradientInput = document.getElementById('backgroundGradientInput');
+            if (backgroundGradientInput && settings.backgroundGradient) {
+                backgroundGradientInput.value = settings.backgroundGradient;
+            }
+            
+            // Highlight active gradient circle
+            if (settings.backgroundGradient) {
+                const gradientCircles = document.querySelectorAll('.gradient-circle');
+                gradientCircles.forEach(circle => {
+                    if (circle.getAttribute('data-gradient') === settings.backgroundGradient) {
+                        circle.style.border = '2px solid #6ca0ff';
+                    }
+                });
+            }
             
             // Load font size
             if (fontSizeSlider) fontSizeSlider.value = settings.fontSize || 16;
@@ -2029,7 +2070,10 @@
                     const color = e.target.value;
                     settings.backgroundColor = color;
                     settings.backgroundImage = null; // Clear image when selecting color
+                    settings.backgroundGradient = null; // Clear gradient when selecting color
                     if (backgroundColorDisplay) backgroundColorDisplay.style.background = color;
+                    const gradientInput = document.getElementById('backgroundGradientInput');
+                    if (gradientInput) gradientInput.value = '';
                     applyBackground();
                 saveSettings();
             });
@@ -2046,12 +2090,58 @@
                     reader.onload = (event) => {
                         settings.backgroundImage = event.target.result;
                         settings.backgroundColor = null; // Clear color when selecting image
+                        settings.backgroundGradient = null; // Clear gradient when selecting image
+                        const gradientInput = document.getElementById('backgroundGradientInput');
+                        if (gradientInput) gradientInput.value = '';
                         applyBackground();
                         updateColorPickerSelection();
                         saveSettings();
                     };
                     reader.readAsDataURL(file);
                 }
+            });
+            
+            // Gradient background input
+            const backgroundGradientInput = document.getElementById('backgroundGradientInput');
+            if (backgroundGradientInput) {
+                backgroundGradientInput.addEventListener('input', (e) => {
+                    const gradient = e.target.value.trim();
+                    if (gradient) {
+                        settings.backgroundGradient = gradient;
+                        settings.backgroundColor = null; // Clear solid color
+                        settings.backgroundImage = null; // Clear image
+                        applyBackground();
+                        saveSettings();
+                    }
+                });
+                
+                backgroundGradientInput.addEventListener('blur', (e) => {
+                    const gradient = e.target.value.trim();
+                    if (gradient) {
+                        settings.backgroundGradient = gradient;
+                        settings.backgroundColor = null;
+                        settings.backgroundImage = null;
+                        applyBackground();
+                        saveSettings();
+                    }
+                });
+            }
+            
+            // Gradient circle presets
+            const gradientCircles = document.querySelectorAll('.gradient-circle');
+            gradientCircles.forEach(circle => {
+                circle.addEventListener('click', () => {
+                    const gradient = circle.getAttribute('data-gradient');
+                    settings.backgroundGradient = gradient;
+                    settings.backgroundColor = null; // Clear solid color
+                    settings.backgroundImage = null; // Clear image
+                    if (backgroundGradientInput) backgroundGradientInput.value = gradient;
+                    // Update active state
+                    gradientCircles.forEach(c => c.style.border = '2px solid rgba(255,255,255,0.5)');
+                    circle.style.border = '2px solid #6ca0ff';
+                    applyBackground();
+                    saveSettings();
+                });
             });
             
             // OS Color pickers
@@ -2161,6 +2251,7 @@
                     animations: true,
                     backgroundColor: '#000000',
                     backgroundImage: null,
+                    backgroundGradient: null,
                     vocabColor: '#00008b',
                     vocabStyle: 'color',
                     practiceColor: '#006400',
@@ -3475,9 +3566,12 @@
                 if (!course.name) return; // Skip courses without names
                 
                 const classType = detectClassType(course.name);
+                // Supported classes: chemistry, ap_world, english
+                // Unsupported but handled: science, math, ela_literature, general
                 if (classType === 'chemistry' || classType === 'ap_world' || classType === 'english') {
                     allowedClasses.push(course);
                 } else {
+                    // Unsupported classes can still generate notes, just displayed separately
                     disallowedClasses.push(course);
                 }
             });
@@ -3494,14 +3588,14 @@
                 });
             }
 
-            // Render disallowed classes (grayed out)
+            // Render disallowed classes (unsupported but can generate notes)
             if (disallowedClasses.length > 0) {
                 const disallowedSection = document.createElement('div');
-                disallowedSection.innerHTML = '<h3 style="color: #666; margin: 2rem 0 1rem; text-align: center;">📋 Other Classes (Not Supported)</h3>';
+                disallowedSection.innerHTML = '<h3 style="color: #ffaa00; margin: 2rem 0 1rem; text-align: center;">📋 Other Classes (Unsupported - Notes Available)</h3>';
                 courseGrid.appendChild(disallowedSection);
                 
                 disallowedClasses.forEach(course => {
-                    const card = createCourseCard(course, true);
+                    const card = createCourseCard(course, false); // Allow clicking even though unsupported
                     courseGrid.appendChild(card);
                 });
             }
@@ -3511,9 +3605,16 @@
             const card = document.createElement('div');
             card.className = 'course-card';
             
+            // Check if course is unsupported (but still allow notes generation)
+            const classType = detectClassType(course.name);
+            const isUnsupported = classType !== 'chemistry' && classType !== 'ap_world' && classType !== 'english';
+            
             if (isDisabled) {
                 card.style.opacity = '0.5';
                 card.style.cursor = 'not-allowed';
+            } else if (isUnsupported) {
+                // Add subtle border to indicate unsupported but functional
+                card.style.border = '2px solid rgba(255, 170, 0, 0.5)';
             }
             
             // Check if we have saved notes for this course
@@ -3522,9 +3623,9 @@
             const noteStatus = hasNotes ? '📚' : '📝';
             
             card.innerHTML = `
-                <div class="course-name" style="${isDisabled ? 'color: #666;' : ''}">${noteStatus} ${course.name}</div>
+                <div class="course-name" style="${isDisabled ? 'color: #666;' : (isUnsupported ? 'color: #ffaa00;' : '')}">${noteStatus} ${course.name}</div>
                 <div style="font-size: 0.9rem; color: #aaa; margin-top: 0.5rem;">
-                    ${isDisabled ? 'Not Supported' : (hasNotes ? 'Notes Available' : 'Click to Generate Notes')}
+                    ${isDisabled ? 'Not Supported' : (isUnsupported ? (hasNotes ? 'Notes Available (Unsupported)' : 'Click to Generate Notes (Unsupported)') : (hasNotes ? 'Notes Available' : 'Click to Generate Notes'))}
                 </div>
             `;
             
@@ -4235,6 +4336,7 @@
         function detectClassType(courseName) {
             const name = courseName.toLowerCase();
             
+            // Supported classes (original detection)
             if (name.includes('chemistry') || name.includes('chem') || name.includes('ap chem')) {
                 return 'chemistry';
             } else if (name.includes('ap world') || name.includes('world history') || name.includes('apwh')) {
@@ -4243,6 +4345,26 @@
                 return 'english';
             }
             
+            // Unsupported classes - keyword-based detection
+            // Science classes (use chemistry format)
+            const scienceKeywords = ['sci', 'science', 'bio', 'biology', 'biolog', 'chem', 'chemistry', 'environmental', 'env', 'env sci', 'physics', 'phys', 'anatomy', 'anat', 'physiology', 'physio', 'astronomy', 'astro', 'geology', 'geo', 'ecology', 'eco', 'zoology', 'zoo', 'botany', 'bot'];
+            if (scienceKeywords.some(keyword => name.includes(keyword))) {
+                return 'science';
+            }
+            
+            // Math classes (use chemistry format)
+            const mathKeywords = ['math', 'algebra', 'alg', 'geometry', 'geo', 'calculus', 'calc', 'trigonometry', 'trig', 'statistics', 'stats', 'stat', 'precalc', 'pre-calc', 'precalc', 'discrete', 'linear', 'differential'];
+            if (mathKeywords.some(keyword => name.includes(keyword))) {
+                return 'math';
+            }
+            
+            // ELA/Literature classes (use history/ap_world format)
+            const elaKeywords = ['ela', 'literature', 'lit', 'reading', 'writing', 'comp', 'composition', 'creative writing', 'poetry', 'drama', 'theater', 'theatre', 'novel', 'fiction', 'non-fiction', 'nonfiction', 'essay', 'rhetoric', 'speech', 'communications', 'comm'];
+            if (elaKeywords.some(keyword => name.includes(keyword))) {
+                return 'ela_literature';
+            }
+            
+            // All other classes (use english/general format)
             return 'general';
         }
 
@@ -5051,7 +5173,140 @@ Short facts on some things
 
 Use this as format and do not actually add in notes. Formatted for google doc tabs, add each topics as its own page. also keep any equation as text no laTeX.`;
 
+                case 'science':
+                    // Science classes use chemistry format
+                    return `FORMAT FOR SCIENCE CLASS:
+
+📘 Unit Title (only put unit title at first page of unit)
+🔑 Key Concepts
+Write 3–7 bullet points with the big ideas of the unit.
+Keep each short and clear, no extra fluff.
+
+🧾 Vocabulary / Terms
+{VOCAB}Term 1{VOCAB}: Short definition here
+How it links to other ideas
+
+{VOCAB}Term 2{VOCAB}: Short definition here
+How it links to other ideas
+
+📏 Rules, Principles, or Processes
+Rule/Principle/Process Name – short description of what it does or means.
+Break long ones into numbered steps.
+Step one
+Step two
+Step three
+
+🔢 Equations / Structures / Patterns
+Write them in bold.
+Give one short generic example (don't use subject matter).
+If it's a process, diagram it as arrows:
+Step A → Step B → Step C → Result
+
+📝 Worked Examples
+{PRACTICE}Example 1{PRACTICE}: Write a simple practice problem or case.
+{PRACTICE}Step 1{PRACTICE}: …
+{PRACTICE}Step 2{PRACTICE}: …
+{PRACTICE}Step 3{PRACTICE}: …
+Final Answer: …
+
+{PRACTICE}Example 2{PRACTICE}: Another one with different steps.
+
+💡 Tips & Shortcuts
+Mnemonic or memory trick
+"Watch out" for common mistakes
+Shortcut to check your work
+
+✅ Quick Review
+3–5 summary bullets
+
+Use this as format and do not actually add in notes. Formatted for google doc tabs, add each topics as its own page. also keep any equation as text no laTeX. Each topic in the unit should be its own page number by unit and number ex. 2.1, 2.2`;
+
+                case 'math':
+                    // Math classes use chemistry format
+                    return `FORMAT FOR MATH CLASS:
+
+📘 Unit Title (only put unit title at first page of unit)
+🔑 Key Concepts
+Write 3–7 bullet points with the big ideas of the unit.
+Keep each short and clear, no extra fluff.
+
+🧾 Vocabulary / Terms
+{VOCAB}Term 1{VOCAB}: Short definition here
+How it links to other ideas
+
+{VOCAB}Term 2{VOCAB}: Short definition here
+How it links to other ideas
+
+📏 Rules, Principles, or Processes
+Rule/Principle/Process Name – short description of what it does or means.
+Break long ones into numbered steps.
+Step one
+Step two
+Step three
+
+🔢 Equations / Structures / Patterns
+Write them in bold.
+Give one short generic example (don't use subject matter).
+If it's a process, diagram it as arrows:
+Step A → Step B → Step C → Result
+
+📝 Worked Examples
+{PRACTICE}Example 1{PRACTICE}: Write a simple practice problem or case.
+{PRACTICE}Step 1{PRACTICE}: …
+{PRACTICE}Step 2{PRACTICE}: …
+{PRACTICE}Step 3{PRACTICE}: …
+Final Answer: …
+
+{PRACTICE}Example 2{PRACTICE}: Another one with different steps.
+
+💡 Tips & Shortcuts
+Mnemonic or memory trick
+"Watch out" for common mistakes
+Shortcut to check your work
+
+✅ Quick Review
+3–5 summary bullets
+
+Use this as format and do not actually add in notes. Formatted for google doc tabs, add each topics as its own page. also keep any equation as text no laTeX. Each topic in the unit should be its own page number by unit and number ex. 2.1, 2.2`;
+
+                case 'ela_literature':
+                    // ELA/Literature classes use history/ap_world format
+                    return `FORMAT FOR ELA/LITERATURE CLASS:
+
+📘 Unit Title (only put unit title at first page of unit)
+🔑 Key Concepts
+Write 3–7 bullet points with the big ideas of the unit.
+Keep each short and clear, no extra fluff.
+
+🧾 Vocabulary / Terms
+{VOCAB}Term 1{VOCAB}: Short definition here
+How it links to other ideas
+
+{VOCAB}Term 2{VOCAB}: Short definition here
+How it links to other ideas
+
+📏 Information
+Paragraph summarising topic
+
+🔢 Spice
+SPICE-T Themes Overview
+ENV (Environment): How natural forces—monsoons, caravanserai—shaped trade networks.
+CDI (Cultural): Spread of religions, languages, and art across Eurasia and Africa.
+GOV (Governance): Emergence of bureaucracies (civil service exams, caliphates) and legal codes.
+ECN (Economics): Expansion of markets, financial instruments (paper money, flying cash), and guilds.
+SIO (Social): Changing kinship ties, gender roles, and class structures under competing ideologies.
+TEC (Technology): Innovations from printing and navigation to agricultural improvements.
+
+💡 Tips & Shortcuts
+Short facts on some things
+
+✅ Quick Review
+3–5 summary bullets
+
+Use this as format and do not actually add in notes. Formatted for google doc tabs, add each topics as its own page. also keep any equation as text no laTeX. keep Main unit head bold -> sub heading for each topic -> in topic just use normal text but bold key words and thing like "Governance:"`;
+
                 default:
+                    // General/other classes use english format
                     return `FORMAT FOR GENERAL CLASS:
 
 📘 Unit Title (only put unit title at first page of unit)
@@ -5442,6 +5697,21 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
                 html.style.backgroundAttachment = 'fixed';
                 // Apply accent colors for image background
                 applyAccentColors('#667eea', '#764ba2');
+            } else if (settings.backgroundGradient) {
+                // Apply gradient background
+                body.style.background = settings.backgroundGradient;
+                body.style.backgroundImage = 'none';
+                body.style.backgroundAttachment = 'fixed';
+                html.style.background = settings.backgroundGradient;
+                html.style.backgroundImage = 'none';
+                html.style.backgroundAttachment = 'fixed';
+                // Apply accent colors for gradient (use first color in gradient)
+                const firstColorMatch = settings.backgroundGradient.match(/#[0-9a-fA-F]{6}/);
+                if (firstColorMatch) {
+                    applyAccentColorsFromBackground(firstColorMatch[0]);
+                } else {
+                    applyAccentColors('#667eea', '#764ba2');
+                }
             } else {
                 // Apply solid color background (handle both hex and legacy names)
                 let bgColor = '#000000';
