@@ -33,6 +33,10 @@
             overflow-x: hidden;
         }
         
+        html {
+            background: #000;
+        }
+        
         /* Loading Screen */
         .loading-screen {
             position: fixed;
@@ -5708,6 +5712,8 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
             const html = document.documentElement;
             
             if (settings.backgroundImage) {
+                // Clear gradient CSS variable
+                document.documentElement.style.setProperty('--background-gradient', 'none');
                 // Apply image background that fills the entire screen
                 body.style.backgroundImage = `url(${settings.backgroundImage})`;
                 body.style.backgroundSize = 'cover';
@@ -5723,13 +5729,24 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
                 // Apply accent colors for image background
                 applyAccentColors('#667eea', '#764ba2');
             } else if (settings.backgroundGradient) {
-                // Apply gradient background
-                body.style.background = settings.backgroundGradient;
-                body.style.backgroundImage = 'none';
-                body.style.backgroundAttachment = 'fixed';
-                html.style.background = settings.backgroundGradient;
-                html.style.backgroundImage = 'none';
-                html.style.backgroundAttachment = 'fixed';
+                // Apply gradient background - use direct style setting with !important
+                const gradientValue = settings.backgroundGradient;
+                
+                // Set background properties individually with !important flag
+                body.style.setProperty('background', gradientValue, 'important');
+                body.style.setProperty('background-color', '#000', 'important');
+                body.style.setProperty('background-size', 'cover', 'important');
+                body.style.setProperty('background-position', 'center', 'important');
+                body.style.setProperty('background-repeat', 'no-repeat', 'important');
+                body.style.setProperty('background-attachment', 'fixed', 'important');
+                
+                html.style.setProperty('background', gradientValue, 'important');
+                html.style.setProperty('background-color', '#000', 'important');
+                html.style.setProperty('background-size', 'cover', 'important');
+                html.style.setProperty('background-position', 'center', 'important');
+                html.style.setProperty('background-repeat', 'no-repeat', 'important');
+                html.style.setProperty('background-attachment', 'fixed', 'important');
+                
                 // Apply accent colors for gradient (use first color in gradient)
                 const firstColorMatch = settings.backgroundGradient.match(/#[0-9a-fA-F]{6}/);
                 if (firstColorMatch) {
