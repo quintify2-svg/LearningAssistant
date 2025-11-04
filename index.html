@@ -4256,14 +4256,24 @@
         }
 
         // Step 1: Ask AI to plan units and topics only (no notes), for internal sequencing
-        async function planUnitsFromText(course, extractedText, existingUnits = []) {
+        async function planUnitsFromText(course, extractedText, existingUnits = [], usedFiles = []) {
             const filenameHints = buildFilenameHints();
             const existingUnitsText = existingUnits.length > 0 
                 ? `\n\nEXISTING UNITS (for reference - create NEW units if material contains different topics):\n${existingUnits.map(u => `Unit ${u.number}: ${u.title}`).join('\n')}`
                 : '';
+            
+            // Create file reference section if files are provided
+            let fileReferenceSection = '';
+            if (usedFiles && usedFiles.length > 0) {
+                const fileNames = usedFiles.map(f => f.name || f).filter(Boolean);
+                if (fileNames.length > 0) {
+                    fileReferenceSection = `\n\nSOURCE FILES:\n${fileNames.map(name => `- ${name}`).join('\n')}`;
+                }
+            }
+            
             const planningPrompt = `You are organizing a course into a plan before writing notes. Return ONLY a concise outline of Units and Topics from the provided material.
 
-COURSE: ${course.name}${existingUnitsText}
+COURSE: ${course.name}${existingUnitsText}${fileReferenceSection}
 
 Return one item per line using this strict format:
 Unit <number>: <Unit Title>
@@ -4581,7 +4591,9 @@ CRITICAL FORMATTING RULES:
                 
                 // Step A: Plan new units/topics with reference to existing ones
                 const existingUnits = existingNotes.units || [];
-                const plan = await retryWithBackoff(() => planUnitsJson(course, extractedText, existingUnits));
+                // For updates, include both existing and new files
+                const allUsedFiles = [...(existingNotes.usedFiles || []), ...(lastUsedFiles || [])];
+                const plan = await retryWithBackoff(() => planUnitsJson(course, extractedText, existingUnits, allUsedFiles));
                 
                 // Calculate total topics for progress
                 const totalTopicsForProgress = plan.reduce((sum, unit) => sum + (unit.topics?.length || 0), 0);
@@ -4625,7 +4637,9 @@ CRITICAL FORMATTING RULES:
                     const batch = allTopics.slice(i, i + BATCH_SIZE);
                     const batchPromises = batch.map(async ({ unitPlan, topic, isNewUnit }) => {
                         try {
-                            const topicText = await generateTopicNotes(course, classType, extractedText, unitPlan, topic);
+                            // For updates, include both existing and new files
+                            const allUsedFiles = [...(existingNotes.usedFiles || []), ...(lastUsedFiles || [])];
+                            const topicText = await generateTopicNotes(course, classType, extractedText, unitPlan, topic, allUsedFiles);
                             
                             // Check if topic already exists - if so, append to existing page
                             const existingTopicPage = existingNotes.topicPages?.[topic.number];
@@ -4744,7 +4758,7 @@ CRITICAL FORMATTING RULES:
                 const classType = detectClassType(course.name);
                 
                 // Step A: Plan in strict JSON (do not render sidebar yet)
-                const plan = await retryWithBackoff(() => planUnitsJson(course, extractedText));
+                const plan = await retryWithBackoff(() => planUnitsJson(course, extractedText, [], lastUsedFiles));
                 
                 // Calculate total topics for progress
                 const totalTopicsForProgress = plan.reduce((sum, unit) => sum + (unit.topics?.length || 0), 0);
@@ -4785,7 +4799,7 @@ CRITICAL FORMATTING RULES:
                     const batch = allTopics.slice(i, i + BATCH_SIZE);
                     const batchPromises = batch.map(async ({ unitPlan, topic }, index) => {
                         try {
-                            const topicText = await generateTopicNotes(course, classType, extractedText, unitPlan, topic);
+                            const topicText = await generateTopicNotes(course, classType, extractedText, unitPlan, topic, lastUsedFiles);
                             injectTopicPage(unitPlan, topic, topicText);
                             // Store the actual HTML content of the page
                             const pageId = `page-topic-${topic.number.replace('.', '-')}`;
@@ -5733,11 +5747,21 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
         }
 
         // Strict JSON planning (outline only)
-        async function planUnitsJson(course, extractedText, existingUnits = []) {
+        async function planUnitsJson(course, extractedText, existingUnits = [], usedFiles = []) {
             const existingUnitsText = existingUnits.length > 0 
                 ? `\n\nEXISTING UNITS (for reference - you can add NEW units if the material contains different topics):\n${existingUnits.map(u => `Unit ${u.number}: ${u.title}`).join('\n')}`
                 : '';
-            const prompt = `Return ONLY valid minified JSON with this exact structure (no comments, no extra text):\n[{"number":1,"title":"Unit Title","topics":[{"number":"1.1","title":"Topic Title"}]}]\nUse units and topics inferred from the material.${existingUnitsText}\n\nIMPORTANT: If the material contains COMPLETELY different topics or concepts that don't fit existing units, create NEW units with appropriate numbers. Only reuse existing unit numbers if the content clearly belongs to those units.`;
+            
+            // Create file reference section if files are provided
+            let fileReferenceSection = '';
+            if (usedFiles && usedFiles.length > 0) {
+                const fileNames = usedFiles.map(f => f.name || f).filter(Boolean);
+                if (fileNames.length > 0) {
+                    fileReferenceSection = `\n\nSOURCE FILES:\n${fileNames.map(name => `- ${name}`).join('\n')}`;
+                }
+            }
+            
+            const prompt = `Return ONLY valid minified JSON with this exact structure (no comments, no extra text):\n[{"number":1,"title":"Unit Title","topics":[{"number":"1.1","title":"Topic Title"}]}]\nUse units and topics inferred from the material.${existingUnitsText}${fileReferenceSection}\n\nIMPORTANT: If the material contains COMPLETELY different topics or concepts that don't fit existing units, create NEW units with appropriate numbers. Only reuse existing unit numbers if the content clearly belongs to those units.`;
             const workerApiBase = 'https://sparkling-lake-6be2.quintify2.workers.dev';
             const aiResponse = await fetch(`${workerApiBase}/api/ai-request`, {
                 method: 'POST',
@@ -5866,9 +5890,19 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
             ensureTopicPageContainer();
         }
 
-        async function generateTopicNotes(course, classType, extractedText, unitPlan, topic) {
+        async function generateTopicNotes(course, classType, extractedText, unitPlan, topic, usedFiles = []) {
             const formatPrompt = getFormatPrompt(classType, course.name);
-            const prompt = `Create study notes ONLY for this topic using the EXACT format sections.\n\nCOURSE: ${course.name}\nCLASS TYPE: ${classType}\nUNIT: ${unitPlan.number} ${unitPlan.title}\nTOPIC: ${topic.number} (${topic.title})\n\nEXTRACTED COURSE CONTENT (may be truncated):\n${capExtractedText(extractedText)}\n\n${formatPrompt}\n\nIMPORTANT:\n- Only write notes for this single topic.\n- Do not include other units or topics.\n- Use {VOCAB}word{VOCAB} markers around vocabulary terms and important definitions.\n- Use {PRACTICE}example{PRACTICE} markers around practice problems, examples, and steps.`;
+            
+            // Create file reference section if files are provided
+            let fileReferenceSection = '';
+            if (usedFiles && usedFiles.length > 0) {
+                const fileNames = usedFiles.map(f => f.name || f).filter(Boolean);
+                if (fileNames.length > 0) {
+                    fileReferenceSection = `\n\nSOURCE FILES (for reference):\n${fileNames.map(name => `- ${name}`).join('\n')}\n\nPlease include brief file references in your notes where relevant (e.g., "Based on [filename.pdf]" or "See [filename.pptx] for more details").`;
+                }
+            }
+            
+            const prompt = `Create study notes ONLY for this topic using the EXACT format sections.\n\nCOURSE: ${course.name}\nCLASS TYPE: ${classType}\nUNIT: ${unitPlan.number} ${unitPlan.title}\nTOPIC: ${topic.number} (${topic.title})\n\nEXTRACTED COURSE CONTENT (may be truncated):\n${capExtractedText(extractedText)}${fileReferenceSection}\n\n${formatPrompt}\n\nIMPORTANT:\n- Only write notes for this single topic.\n- Do not include other units or topics.\n- Use {VOCAB}word{VOCAB} markers around vocabulary terms and important definitions.\n- Use {PRACTICE}example{PRACTICE} markers around practice problems, examples, and steps.\n- Include file references where relevant to help users know which source materials were used for this topic.`;
             return await retryWithBackoff(async () => {
                 const workerApiBase = 'https://sparkling-lake-6be2.quintify2.workers.dev';
                 const aiResponse = await fetch(`${workerApiBase}/api/ai-request`, {
