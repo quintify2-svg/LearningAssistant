@@ -350,6 +350,7 @@
         .dashboard {
             display: none;
             min-height: 100vh;
+            overflow: visible; /* Allow tooltips to show */
         }
         
         .dashboard.active {
@@ -365,6 +366,7 @@
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             background: rgba(0, 0, 0, 0.5);
+            overflow: visible; /* Allow tooltips to show */
         }
         
         .header h1 {
@@ -377,12 +379,119 @@
             letter-spacing: -0.02em;
         }
         
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            overflow: visible; /* Allow tooltips to show */
+        }
+        
+        .header-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            color: #fff;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none; /* Hidden by default, shown when notes are loaded */
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            position: relative;
+        }
+        
+        .header-btn:hover {
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 12px rgba(108, 160, 255, 0.3);
+            filter: brightness(1.2);
+        }
+        
+        .header-btn:hover:not(:active) {
+            transform: translateY(-2px);
+        }
+        
+        .header-btn:active {
+            transform: translateY(0);
+            filter: brightness(0.9);
+        }
+        
+        /* Tooltip container for header buttons */
+        .header-btn .tooltip,
+        .settings-btn .tooltip {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease 0.1s, transform 0.2s ease 0.1s;
+            z-index: 999999;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            visibility: hidden;
+            line-height: 1.4;
+        }
+        
+        .header-btn:hover .tooltip,
+        .settings-btn:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-2px);
+        }
+        
+        /* Ensure tooltips are visible even when parent is clipped */
+        .header-btn,
+        .settings-btn {
+            overflow: visible !important;
+        }
+        
+        .settings-btn {
+            position: relative;
+        }
+        
+        /* Specific gradient backgrounds for certain buttons - now use accent colors */
+        #updateNotesBtn {
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            border: none;
+        }
+        
+        #resourcesBtn {
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            border: none;
+        }
+        
+        #quizGeneratorBtn {
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            border: none;
+        }
+        
+        #saveNotesBtn {
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            border: none;
+        }
+        
+        #clearNotesBtn {
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            border: none;
+        }
+        
         .settings-btn {
             width: 50px;
             height: 50px;
             border: none;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             color: #fff;
@@ -392,8 +501,13 @@
         }
         
         .settings-btn:hover {
-            background: rgba(102, 126, 234, 0.2);
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            filter: brightness(1.2);
             transform: rotate(90deg) scale(1.05);
+        }
+        
+        .settings-btn:active {
+            filter: brightness(0.9);
         }
         
         /* Tabs */
@@ -428,6 +542,7 @@
         /* Content Areas */
         .content {
             padding: 0;
+            overflow: visible; /* Allow tooltips to show */
         }
         
         .assignments-content {
@@ -436,6 +551,293 @@
         
         .assignments-content.active {
             display: block;
+        }
+        
+        /* Main Menu */
+        .main-menu {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: calc(100vh - 80px);
+            padding: 0;
+            padding-bottom: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .main-menu.active ~ * body,
+        body:has(.main-menu:not(.hidden)) {
+            overflow: hidden;
+        }
+        
+        .menu-container {
+            text-align: center;
+            max-width: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 100%;
+            position: relative;
+        }
+        
+        .pie-menu-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 2rem;
+            position: relative;
+            height: 100%;
+        }
+        
+        .pie-menu-arrows-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            position: relative;
+        }
+        
+        .top-section-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            margin-top: 3rem;
+            animation: fadeInDown 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .top-section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            filter: brightness(0.7);
+        }
+        
+        .top-section-button {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            animation: buttonPulse 2s ease-in-out infinite;
+        }
+        
+        .top-section-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 50%);
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .top-section-button:hover {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.7);
+            animation: none;
+        }
+        
+        .top-section-button:hover::before {
+            opacity: 0.4;
+        }
+        
+        .top-section-button:active {
+            transform: scale(1.08) rotate(-2deg);
+        }
+        
+        @keyframes buttonPulse {
+            0%, 100% {
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            }
+            50% {
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+            }
+        }
+        
+        .top-section-emoji {
+            font-size: 4rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .top-section-description {
+            font-size: 0.95rem;
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: brightness(0.7);
+            text-align: center;
+            max-width: 250px;
+            line-height: 1.4;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .pie-menu {
+            height: 800px;
+            width: 800px;
+            margin: 0;
+            margin-bottom: -400px;
+            position: relative;
+            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        @media (max-width: 1000px) {
+            .pie-menu {
+                height: 600px;
+                width: 600px;
+                margin-bottom: -300px;
+            }
+            .pie-menu-wrapper {
+                gap: 2rem;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .pie-menu {
+                height: 400px;
+                width: 400px;
+                margin-bottom: -200px;
+            }
+            .pie-menu-wrapper {
+                gap: 1rem;
+            }
+        }
+        
+        .pie-menu svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .pie-section {
+            transition: all 0.3s ease;
+        }
+        
+        .pie-slice {
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+        
+        .pie-label {
+            pointer-events: none;
+            user-select: none;
+            fill: var(--accent-color-1) !important;
+            filter: brightness(0.7);
+        }
+        
+        .pie-text-label {
+            transition: font-size 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            fill: var(--accent-color-1) !important;
+            filter: brightness(0.7);
+        }
+        
+        .pie-emoji {
+            transition: font-size 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .pie-section.pie-selected .pie-text-label {
+            font-size: 26px;
+            fill: var(--accent-color-2) !important;
+            filter: brightness(0.7);
+        }
+        
+        .pie-section.pie-selected .pie-emoji {
+            font-size: 52px;
+        }
+        
+        .gradient-stop1 {
+            stop-color: var(--accent-color-1);
+            stop-opacity: 1;
+        }
+        
+        .gradient-stop2 {
+            stop-color: var(--accent-color-2);
+            stop-opacity: 1;
+        }
+        
+        .menu-arrow {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .menu-arrow:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .menu-arrow:active {
+            transform: scale(0.95);
+        }
+        
+        .menu-arrow svg {
+            width: 48px;
+            height: 48px;
+        }
+        
+        @media (max-width: 1000px) {
+            .menu-arrow {
+                width: 90px;
+                height: 90px;
+            }
+            .menu-arrow svg {
+                width: 36px;
+                height: 36px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .menu-arrow {
+                width: 60px;
+                height: 60px;
+            }
+            .menu-arrow svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+        
+        .main-menu.hidden {
+            display: none;
         }
         
         .notes-content {
@@ -797,6 +1199,32 @@
         
         .back-btn:hover {
             background: rgba(0, 255, 255, 0.2);
+        }
+        
+        .back-to-menu-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            align-self: flex-start;
+            margin-left: 1rem;
+        }
+        
+        .back-to-menu-btn:hover {
+            transform: translateX(-5px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .back-to-menu-btn:active {
+            transform: translateX(-3px) scale(1.02);
         }
         
         /* Settings Panel */
@@ -1266,6 +1694,20 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
         
         @keyframes slideInRight {
             from { opacity: 0; transform: translateX(20px); }
@@ -1724,12 +2166,119 @@
     <div class="dashboard" id="dashboard">
         <div class="header">
             <h1>🎓 Learning Assistant</h1>
-            <button class="settings-btn" id="settingsBtn">⚙️</button>
+            <div class="header-buttons">
+                <button class="header-btn" id="saveNotesBtn" data-tooltip="Save Notes">💾<span class="tooltip">Save Notes</span></button>
+                <button class="header-btn" id="clearNotesBtn" data-tooltip="Clear Notes">🗑️<span class="tooltip">Clear Notes</span></button>
+                <button class="header-btn" id="updateNotesBtn" data-tooltip="Update Notes">🔄<span class="tooltip">Update Notes</span></button>
+                <button class="header-btn" id="resourcesBtn" data-tooltip="Resources">📁<span class="tooltip">Resources</span></button>
+                <button class="header-btn" id="quizGeneratorBtn" data-tooltip="Generate Quiz">📝<span class="tooltip">Generate Quiz</span></button>
+                <button class="header-btn" id="flashcardBtn" data-tooltip="Flashcards">🃏<span class="tooltip">Flashcards</span></button>
+                <button class="settings-btn" id="settingsBtn" data-tooltip="Settings">⚙️<span class="tooltip">Settings</span></button>
+            </div>
         </div>
         
         <div class="content">
+            <!-- Main Menu -->
+            <div class="main-menu" id="mainMenu">
+                <div class="menu-container">
+                    <div class="pie-menu-wrapper">
+                        <!-- Top Section Info Button -->
+                        <div class="top-section-info" id="topSectionInfo" style="display: none;">
+                            <div class="top-section-title" id="topSectionTitle"></div>
+                            <button class="top-section-button" id="topSectionButton">
+                                <span class="top-section-emoji" id="topSectionEmoji"></span>
+                            </button>
+                            <div class="top-section-description" id="topSectionDescription"></div>
+                        </div>
+                        
+                        <div class="pie-menu-arrows-wrapper">
+                            <!-- Left Arrow -->
+                            <button class="menu-arrow menu-arrow-left" id="menuArrowLeft">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M15 18l-6-6 6-6"/>
+                                </svg>
+                            </button>
+                            
+                            <!-- Pie Menu Circle -->
+                            <div class="pie-menu" id="pieMenu">
+                            <svg width="800" height="800" viewBox="0 0 400 400">
+                                <defs>
+                                    <linearGradient id="pieGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" class="gradient-stop1" />
+                                        <stop offset="100%" class="gradient-stop2" />
+                                    </linearGradient>
+                                    <linearGradient id="pieGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" class="gradient-stop2" />
+                                        <stop offset="100%" class="gradient-stop1" />
+                                    </linearGradient>
+                                </defs>
+                                
+                                <!-- Background Circle -->
+                                <circle cx="200" cy="200" r="180" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+                                
+                                <!-- Section 1: Classes (Top-Right - center at 45°) -->
+                                <g class="pie-section pie-selected" id="classesSectionGroup">
+                                    <path id="classesSection" class="pie-slice" d="M 200 200 L 200 20 A 180 180 0 0 1 380 200 Z" 
+                                          fill="url(#pieGradient1)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                                    <text x="299" y="101" text-anchor="middle" class="pie-label" font-size="20" font-weight="600" transform="rotate(45 299 101)">
+                                        <tspan x="299" dy="0" class="pie-text-label">Classes</tspan>
+                                        <tspan x="299" dy="50" font-size="36" class="pie-emoji">📚</tspan>
+                                    </text>
+                                </g>
+                                
+                                <!-- Section 2: Calendar (Bottom-Right - center at 135°) -->
+                                <g class="pie-section" id="calendarSectionGroup">
+                                    <path id="calendarSection" class="pie-slice" d="M 200 200 L 380 200 A 180 180 0 0 1 200 380 Z" 
+                                          fill="url(#pieGradient2)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                                    <text x="299" y="299" text-anchor="middle" class="pie-label" font-size="20" font-weight="600" transform="rotate(135 299 299)">
+                                        <tspan x="299" dy="0" class="pie-text-label">Calendar</tspan>
+                                        <tspan x="299" dy="50" font-size="36" class="pie-emoji">📅</tspan>
+                                    </text>
+                                </g>
+                                
+                                <!-- Section 3: (Bottom-Left - center at 225°) -->
+                                <g class="pie-section" id="section3Group">
+                                    <path id="section3" class="pie-slice" d="M 200 200 L 200 380 A 180 180 0 0 1 20 200 Z" 
+                                          fill="url(#pieGradient1)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                                    <text x="101" y="299" text-anchor="middle" class="pie-label" font-size="20" font-weight="600" transform="rotate(225 101 299)">
+                                        <tspan x="101" dy="0" class="pie-text-label">Section</tspan>
+                                        <tspan x="101" dy="25" class="pie-text-label">3</tspan>
+                                        <tspan x="101" dy="50" font-size="36" class="pie-emoji">📋</tspan>
+                                    </text>
+                                </g>
+                                
+                                <!-- Section 4: (Top-Left - center at 315°/-45°) -->
+                                <g class="pie-section" id="section4Group">
+                                    <path id="section4" class="pie-slice" d="M 200 200 L 20 200 A 180 180 0 0 1 200 20 Z" 
+                                          fill="url(#pieGradient2)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                                    <text x="101" y="101" text-anchor="middle" class="pie-label" font-size="20" font-weight="600" transform="rotate(-45 101 101)">
+                                        <tspan x="101" dy="0" class="pie-text-label">Section</tspan>
+                                        <tspan x="101" dy="25" class="pie-text-label">4</tspan>
+                                        <tspan x="101" dy="50" font-size="36" class="pie-emoji">📊</tspan>
+                                    </text>
+                                </g>
+                                
+                                <!-- Center Circle -->
+                                <circle cx="200" cy="200" r="60" fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                            </svg>
+                            </div>
+                            
+                            <!-- Right Arrow -->
+                            <button class="menu-arrow menu-arrow-right" id="menuArrowRight">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 18l6-6-6-6"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Notes Content -->
-            <div class="notes-content active" id="notesContent">
+            <div class="notes-content" id="notesContent" style="display: none;">
+                <div style="padding: 1rem;">
+                    <button class="back-to-menu-btn" id="backToMenuBtn">← Back to Menu</button>
+                </div>
                 <div class="course-grid" id="courseGrid"></div>
             </div>
         </div>
@@ -1739,11 +2288,6 @@
     <div class="split-view" id="splitView">
         <div class="sidebar" id="sidebar">
             <button class="back-btn" id="backBtn">← Back to Courses</button>
-            <button class="btn btn-primary" id="saveNotesBtn" style="width: 100%; margin-top: 8px;">💾 Save Notes</button>
-            <button class="btn btn-secondary" id="clearNotesBtn" style="width: 100%; margin-top: 8px;">🗑️ Clear Notes</button>
-            <button class="btn btn-secondary" id="updateNotesBtn" style="width: 100%; margin-top: 8px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none;">🔄 Update Notes</button>
-            <button class="btn btn-secondary" id="resourcesBtn" style="width: 100%; margin-top: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">📁 Resources</button>
-            <button class="btn btn-secondary" id="quizGeneratorBtn" style="width: 100%; margin-top: 8px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none;">🤖 Generate Quiz</button>
             <div id="unitsList"></div>
         </div>
         <div class="main-content" id="mainContent">
@@ -1902,6 +2446,9 @@
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
         const closeSettings = document.getElementById('closeSettings');
+        const mainMenu = document.getElementById('mainMenu');
+        const classesBtn = document.getElementById('classesBtn');
+        const calendarBtn = document.getElementById('calendarBtn');
         const animationsToggle = document.getElementById('animationsToggle');
         const fileUploadArea = document.getElementById('fileUploadArea');
         const generateFromFilesBtn = document.getElementById('generateFromFilesBtn');
@@ -1910,6 +2457,7 @@
         const saveNotesBtn = document.getElementById('saveNotesBtn');
         const resourcesBtn = document.getElementById('resourcesBtn');
         const quizGeneratorBtn = document.getElementById('quizGeneratorBtn');
+        const flashcardBtn = document.getElementById('flashcardBtn');
         const vocabStyle = document.getElementById('vocabStyle');
         const practiceStyle = document.getElementById('practiceStyle');
         const vocabColorPicker = document.getElementById('vocabColorPicker');
@@ -2051,9 +2599,169 @@
             }
             
             loadBtn.addEventListener('click', handleLoadCourses);
+            
+            // Pie menu navigation
+            let currentRotation = -45; // Start at -45deg so slice center points up
+            const pieMenu = document.getElementById('pieMenu');
+            const menuArrowLeft = document.getElementById('menuArrowLeft');
+            const menuArrowRight = document.getElementById('menuArrowRight');
+            
+        // Set initial rotation
+        if (pieMenu) {
+            pieMenu.style.transform = `rotate(${currentRotation}deg)`;
+        }
+            
+            // Arrow navigation - rotate 90 degrees (one quarter turn)
+            if (menuArrowLeft) {
+                menuArrowLeft.addEventListener('click', () => {
+                    currentRotation -= 90;
+                    if (pieMenu) {
+                        pieMenu.style.transform = `rotate(${currentRotation}deg)`;
+                    }
+                    updateSelectedSection();
+                });
+            }
+            
+            if (menuArrowRight) {
+                menuArrowRight.addEventListener('click', () => {
+                    currentRotation += 90;
+                    if (pieMenu) {
+                        pieMenu.style.transform = `rotate(${currentRotation}deg)`;
+                    }
+                    updateSelectedSection();
+                });
+            }
+            
+            // Section data for display
+            const sectionData = {
+                classes: {
+                    title: 'Classes',
+                    emoji: '📚',
+                    description: 'View and manage your course classes'
+                },
+                calendar: {
+                    title: 'Calendar',
+                    emoji: '📅',
+                    description: 'Coming soon - View your schedule'
+                },
+                section3: {
+                    title: 'Section 3',
+                    emoji: '📋',
+                    description: 'Coming soon'
+                },
+                section4: {
+                    title: 'Section 4',
+                    emoji: '📊',
+                    description: 'Coming soon'
+                }
+            };
+            
+            // Update selected section based on rotation
+            const updateSelectedSection = () => {
+                // Remove all selected classes
+                const allSections = document.querySelectorAll('.pie-section');
+                allSections.forEach(section => section.classList.remove('pie-selected'));
+                
+                // Determine which section is on top based on rotation
+                // The menu starts at -45deg rotation, placing Section 1 (Classes) at top
+                // Each click rotates by 90deg, so:
+                // -45deg → Section 1 (Classes) - index 0
+                // 45deg → Section 4 (swapped) - index 1
+                // 135deg → Section 3 - index 2
+                // 225deg → Calendar (swapped) - index 3
+                
+                // Normalize rotation to handle negative values
+                const normalizedRotation = ((currentRotation % 360) + 360) % 360;
+                
+                // Calculate section index: (rotation + 45) / 90, then mod 4
+                let sectionIndex;
+                if (currentRotation === -45 || (normalizedRotation >= 315 && normalizedRotation < 360)) {
+                    sectionIndex = 0; // Classes
+                } else {
+                    // For other rotations, calculate directly
+                    const adjustedRotation = (currentRotation + 45 + 360) % 360;
+                    sectionIndex = Math.floor(adjustedRotation / 90) % 4;
+                }
+                
+                let selectedSection;
+                let selectedData;
+                
+                // Map section index to actual sections
+                // Note: Calendar and Section 4 are swapped in rotation order
+                if (sectionIndex === 0) {
+                    // Section 1 (Classes)
+                    selectedSection = classesSectionGroup;
+                    selectedData = sectionData.classes;
+                } else if (sectionIndex === 1) {
+                    // Section 4 (swapped with Calendar at this position)
+                    selectedSection = section4Group;
+                    selectedData = sectionData.section4;
+                } else if (sectionIndex === 2) {
+                    // Section 3
+                    selectedSection = section3Group;
+                    selectedData = sectionData.section3;
+                } else if (sectionIndex === 3) {
+                    // Calendar (swapped with Section 4 at this position)
+                    selectedSection = calendarSectionGroup;
+                    selectedData = sectionData.calendar;
+                } else {
+                    // Fallback to Classes
+                    selectedSection = classesSectionGroup;
+                    selectedData = sectionData.classes;
+                }
+                
+                if (selectedSection) {
+                    selectedSection.classList.add('pie-selected');
+                }
+                
+                // Update top section info display
+                const topSectionInfo = document.getElementById('topSectionInfo');
+                const topSectionTitle = document.getElementById('topSectionTitle');
+                const topSectionEmoji = document.getElementById('topSectionEmoji');
+                const topSectionDescription = document.getElementById('topSectionDescription');
+                const topSectionButton = document.getElementById('topSectionButton');
+                
+                if (topSectionInfo && topSectionTitle && topSectionEmoji && topSectionDescription && selectedData) {
+                    topSectionTitle.textContent = selectedData.title;
+                    topSectionEmoji.textContent = selectedData.emoji;
+                    topSectionDescription.textContent = selectedData.description;
+                    topSectionInfo.style.display = 'flex';
+                    
+                    // Add click handler for button
+                    if (selectedData.title === 'Classes') {
+                        topSectionButton.onclick = () => showClasses();
+                    } else if (selectedData.title === 'Calendar') {
+                        topSectionButton.onclick = () => alert('Calendar feature coming soon!');
+                    } else {
+                        topSectionButton.onclick = () => alert(`${selectedData.title} - Coming soon!`);
+                    }
+                }
+            };
+            
+            // Get section references
+            const classesSectionGroup = document.getElementById('classesSectionGroup');
+            const calendarSectionGroup = document.getElementById('calendarSectionGroup');
+            const section3Group = document.getElementById('section3Group');
+            const section4Group = document.getElementById('section4Group');
+            
+            // Update selected section initially
+            updateSelectedSection();
+            
+            // Section click handlers - removed (no longer clickable)
+            
             backBtn.addEventListener('click', () => {
                 splitView.classList.remove('active');
-                notesContent.classList.add('active');
+                showMainMenu();
+                // Hide header buttons when going back to menu
+                const headerButtons = document.querySelector('.header-buttons');
+                if (headerButtons) {
+                    const buttonsToHide = headerButtons.querySelectorAll('.header-btn');
+                    buttonsToHide.forEach(btn => {
+                        if (btn.id !== 'settingsBtn') {
+                            btn.style.display = 'none';
+                        }
+                    });
+                }
             });
             // Notes management
             saveNotesBtn.addEventListener('click', saveCurrentCourseNotes);
@@ -2234,6 +2942,11 @@
             // Quiz Generator button
             if (quizGeneratorBtn) {
                 quizGeneratorBtn.addEventListener('click', showQuizGeneratorModal);
+            }
+            
+            // Flashcard button
+            if (flashcardBtn) {
+                flashcardBtn.addEventListener('click', showFlashcardModal);
             }
             
             // Clear All Data button
@@ -2491,6 +3204,891 @@
             });
         }
         
+        // Save flashcard data to localStorage
+        function saveFlashcardData(courseId, flashcardData) {
+            try {
+                const key = `flashcards_${courseId}`;
+                localStorage.setItem(key, JSON.stringify({
+                    ...flashcardData,
+                    savedAt: new Date().toISOString()
+                }));
+            } catch (error) {
+                console.error('Error saving flashcard data:', error);
+            }
+        }
+        
+        // Load flashcard data from localStorage
+        function loadFlashcardData(courseId) {
+            try {
+                const key = `flashcards_${courseId}`;
+                const saved = localStorage.getItem(key);
+                return saved ? JSON.parse(saved) : null;
+            } catch (error) {
+                console.error('Error loading flashcard data:', error);
+                return null;
+            }
+        }
+        
+        // Clear flashcard data from localStorage
+        function clearFlashcardData(courseId) {
+            try {
+                const key = `flashcards_${courseId}`;
+                localStorage.removeItem(key);
+            } catch (error) {
+                console.error('Error clearing flashcard data:', error);
+            }
+        }
+        
+        function showFlashcardModal() {
+            if (!currentCourse) return;
+            
+            // Get units/topics from saved notes or current course
+            const courseId = String(currentCourse.id);
+            const notes = savedNotes[courseId];
+            const plan = notes?.units || [];
+            
+            if (plan.length === 0) {
+                alert('No notes found for this course. Please generate notes first.');
+                return;
+            }
+            
+            // Check if there's a saved flashcard set for this course
+            const savedFlashcards = loadFlashcardData(courseId);
+            const hasSavedFlashcards = savedFlashcards && savedFlashcards.flashcards && savedFlashcards.flashcards.length > 0;
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(10px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease-out;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: rgba(30, 30, 30, 0.95);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 20px;
+                    padding: 2rem;
+                    max-width: 500px;
+                    width: 90%;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                ">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="margin: 0; background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🃏 Flashcards</h2>
+                        <button id="closeFlashcardModal" style="
+                            background: none;
+                            border: none;
+                            color: #fff;
+                            font-size: 28px;
+                            cursor: pointer;
+                            padding: 0;
+                            width: 32px;
+                            height: 32px;
+                            line-height: 1;
+                            transition: transform 0.3s ease;
+                        ">×</button>
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Select Topics:</label>
+                        <select id="flashcardScope" style="
+                            width: 100%;
+                            padding: 0.8rem;
+                            border-radius: 10px;
+                            background: rgba(255, 255, 255, 0.1);
+                            border: 1px solid rgba(255, 255, 255, 0.2);
+                            color: #fff;
+                            font-size: 1rem;
+                        ">
+                            <option value="all">All Topics</option>
+                        </select>
+                    </div>
+                    
+                    ${hasSavedFlashcards ? `
+                    <button id="continueFlashcardsBtn" style="
+                        width: 100%;
+                        padding: 1rem;
+                        margin-bottom: 1rem;
+                        border-radius: 10px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border: none;
+                        color: #fff;
+                        font-size: 1.1rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: transform 0.3s ease, box-shadow 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                    ">Continue Last Set (${savedFlashcards.currentIndex || 0}/${savedFlashcards.flashcards?.length || 0})</button>
+                    ` : ''}
+                    
+                    <button id="startFlashcardsBtn" style="
+                        width: 100%;
+                        padding: 1rem;
+                        border-radius: 10px;
+                        background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+                        border: none;
+                        color: #fff;
+                        font-size: 1.1rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: transform 0.3s ease, box-shadow 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                    ">Generate New Flashcards</button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Populate scope dropdown with units
+            const scopeSelect = modal.querySelector('#flashcardScope');
+            scopeSelect.innerHTML = '<option value="all">All Topics</option>';
+            plan.forEach(unit => {
+                scopeSelect.innerHTML += `<option value="unit-${unit.number}">Unit ${unit.number}: ${unit.title}</option>`;
+                unit.topics.forEach(topic => {
+                    const optionValue = `topic-${unit.number}-${topic.number}`;
+                    scopeSelect.innerHTML += `<option value="${optionValue}">${unit.number}.${topic.number}: ${topic.title}</option>`;
+                });
+            });
+            
+            // Close modal handlers
+            const closeModal = () => {
+                modal.style.animation = 'fadeIn 0.3s ease-out reverse';
+                setTimeout(() => modal.remove(), 300);
+            };
+            
+            modal.querySelector('#closeFlashcardModal').addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            
+            // Continue flashcards handler
+            if (hasSavedFlashcards) {
+                modal.querySelector('#continueFlashcardsBtn').addEventListener('click', () => {
+                    closeModal();
+                    restoreFlashcards(courseId, savedFlashcards);
+                });
+            }
+            
+            // Start flashcards handler
+            modal.querySelector('#startFlashcardsBtn').addEventListener('click', () => {
+                const scope = scopeSelect.value;
+                closeModal();
+                // Clear old flashcard data when generating new set
+                clearFlashcardData(courseId);
+                showFlashcards(scope);
+            });
+        }
+        
+        async function extractFlashcardsFromNotes(scope, loadingDiv = null) {
+            if (!currentCourse) return [];
+            
+            const courseId = String(currentCourse.id);
+            const notes = savedNotes[courseId];
+            if (!notes) return [];
+            
+            // Helper to clean vocab term - remove file references and other artifacts
+            // Only removes file reference patterns, not the actual term content
+            function cleanVocabTerm(term) {
+                if (!term) return '';
+                
+                const originalTerm = term;
+                
+                // Remove file reference patterns in brackets (but keep the term itself)
+                // Pattern: "Term [Based on Topic###.pptx]" -> "Term"
+                term = term.replace(/\s*\[Based on [^\]]+\]/gi, '');
+                term = term.replace(/\s*\[From [^\]]+\]/gi, '');
+                term = term.replace(/\s*\[See [^\]]+\]/gi, '');
+                term = term.replace(/\s*\[Topic[^\]]+\]/gi, '');
+                term = term.replace(/\s*\[.*?\.(pdf|pptx|docx|doc|txt|rtf)\]/gi, '');
+                
+                // Remove file references in parentheses
+                term = term.replace(/\s*\(Based on [^)]+\)/gi, '');
+                term = term.replace(/\s*\(From [^)]+\)/gi, '');
+                term = term.replace(/\s*\(See [^)]+\)/gi, '');
+                term = term.replace(/\s*\(Topic[^)]+\)/gi, '');
+                
+                // Remove standalone Topic references (but not if it's part of the actual term)
+                // Only remove if it's at the start/end with numbers
+                term = term.replace(/^Topic\s*\d+[\.\d]*\s+/gi, '');
+                term = term.replace(/\s+Topic\s*\d+[\.\d]*$/gi, '');
+                
+                // Clean up extra spaces and trim
+                term = term.trim().replace(/\s+/g, ' ');
+                
+                // If the term became empty or is too short after cleaning, return empty
+                if (!term || term.length < 2) {
+                    return '';
+                }
+                
+                // If after cleaning it's just "Topic" or brackets, return empty
+                if (term.match(/^\[?Topic\]?$/i) || term.match(/^\[.*\]$/)) {
+                    return '';
+                }
+                
+                return term;
+            }
+            
+            // Helper to extract vocab terms from raw text (using {VOCAB} markers)
+            function extractVocabTermsFromRaw(text) {
+                if (!text) return [];
+                const terms = [];
+                const foundTerms = new Set();
+                
+                // Extract {VOCAB}term{VVOCAB} markers
+                const vocabPattern = /{VOCAB}([^{]+){VOCAB}/gi;
+                let match;
+                while ((match = vocabPattern.exec(text)) !== null) {
+                    let term = match[1].trim();
+                    term = cleanVocabTerm(term);
+                    if (term && term.length > 0 && !foundTerms.has(term.toLowerCase())) {
+                        foundTerms.add(term.toLowerCase());
+                        terms.push(term);
+                    }
+                }
+                
+                // Also extract from vocab section (like coloring system does)
+                const vocabSectionRegex = /🧾\s*Vocabulary\s*\/\s*Terms[\s\S]*?(?=\n\n|📏|🔢|💡|✅|$)/i;
+                const vocabSectionMatch = text.match(vocabSectionRegex);
+                if (vocabSectionMatch) {
+                    const vocabSection = vocabSectionMatch[0];
+                    // Extract terms that are capitalized words followed by colon or pipe
+                    const termPattern = /(^|>|<br>|\n)([A-Z][A-Za-z\s]{1,40})\s*([:|])/gm;
+                    let termMatch;
+                    while ((termMatch = termPattern.exec(vocabSection)) !== null) {
+                        let term = termMatch[2].trim();
+                        term = cleanVocabTerm(term);
+                        if (term && term.length > 0 && !foundTerms.has(term.toLowerCase())) {
+                            foundTerms.add(term.toLowerCase());
+                            terms.push(term);
+                        }
+                    }
+                }
+                
+                return terms;
+            }
+            
+            // Helper to extract vocab terms from HTML content (using .vocab-word spans)
+            function extractVocabTermsFromHTML(htmlContent) {
+                if (!htmlContent) return [];
+                const terms = [];
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+                const vocabSpans = tempDiv.querySelectorAll('.vocab-word');
+                const foundTerms = new Set();
+                
+                vocabSpans.forEach(span => {
+                    let term = span.textContent.trim();
+                    term = cleanVocabTerm(term);
+                    if (term && term.length > 0 && !foundTerms.has(term.toLowerCase())) {
+                        foundTerms.add(term.toLowerCase());
+                        terms.push(term);
+                    }
+                });
+                
+                return terms;
+            }
+            
+            // Helper to get raw text from HTML (for context and VOCAB marker extraction)
+            function getRawTextFromHTML(htmlContent) {
+                if (!htmlContent) return '';
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+                return tempDiv.textContent || '';
+            }
+            
+            // Helper to get context text from HTML
+            function getContextFromHTML(htmlContent) {
+                if (!htmlContent) return '';
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+                return tempDiv.textContent || '';
+            }
+            
+            // Collect all vocab terms from selected topics ONLY
+            const allTerms = [];
+            let contextContent = '';
+            
+            // Get selected topics based on scope
+            const selectedTopics = [];
+            
+            if (scope === 'all') {
+                // All topics - get all topic numbers from topicPages
+                if (notes.topicPages) {
+                    Object.keys(notes.topicPages).forEach(topicNumber => {
+                        selectedTopics.push(topicNumber);
+                    });
+                }
+            } else if (scope.startsWith('unit-')) {
+                // Specific unit - get topics that start with unit number
+                const unitNum = scope.replace('unit-', '');
+                if (notes.topicPages) {
+                    Object.keys(notes.topicPages).forEach(topicNumber => {
+                        if (topicNumber.startsWith(unitNum + '.')) {
+                            selectedTopics.push(topicNumber);
+                        }
+                    });
+                }
+            } else if (scope.startsWith('topic-')) {
+                // Specific topic - parse like quiz generator does
+                // Format: "topic-1-1.1" -> "1.1", "topic-1-1.5" -> "1.5", "topic-2-3.2" -> "3.2"
+                const parts = scope.split('-');
+                if (parts.length >= 3) {
+                    // Join all parts after 'topic' and unit number with dots
+                    const topicNum = parts.slice(2).join('.');
+                    console.log(`🔍 Parsing topic scope: "${scope}" -> topic number: "${topicNum}"`);
+                    console.log(`🔍 Available topicPages keys:`, notes.topicPages ? Object.keys(notes.topicPages) : 'none');
+                    
+                    if (notes.topicPages && notes.topicPages[topicNum]) {
+                        selectedTopics.push(topicNum);
+                        console.log(`✅ Found exact match: ${topicNum}`);
+                    } else {
+                        console.warn(`❌ No matching topic found for scope: ${scope}, topicNum: ${topicNum}`);
+                        console.warn(`   Available keys don't include: ${topicNum}`);
+                    }
+                }
+            }
+            
+            console.log(`📋 Selected topics for flashcards: ${selectedTopics.length} topics`, selectedTopics);
+            
+            // Extract from ONLY the selected topics
+            if (notes.topicPages && selectedTopics.length > 0) {
+                selectedTopics.forEach(topicNumber => {
+                    const htmlContent = notes.topicPages[topicNumber];
+                    if (htmlContent) {
+                        // Try extracting from HTML spans first
+                        const termsFromHTML = extractVocabTermsFromHTML(htmlContent);
+                        console.log(`📝 Topic ${topicNumber}: Found ${termsFromHTML.length} terms from HTML spans`, termsFromHTML.slice(0, 5));
+                        allTerms.push(...termsFromHTML);
+                        
+                        // Also try extracting from raw text representation
+                        const rawText = getRawTextFromHTML(htmlContent);
+                        const termsFromRaw = extractVocabTermsFromRaw(rawText);
+                        console.log(`📝 Topic ${topicNumber}: Found ${termsFromRaw.length} terms from raw text`, termsFromRaw.slice(0, 5));
+                        allTerms.push(...termsFromRaw);
+                        
+                        contextContent += getContextFromHTML(htmlContent) + '\n\n';
+                    }
+                });
+            }
+            
+            console.log(`📚 Total terms extracted before cleaning: ${allTerms.length}`);
+            
+            // Only use raw content if we have selected topics and need to extract from it
+            // But actually, we should NOT use raw content as it contains all topics
+            // Only use the selected topic pages' content
+            
+            // Remove duplicates and filter out empty/invalid terms
+            const uniqueTerms = [...new Set(allTerms.map(t => t.toLowerCase()))].map(t => {
+                return allTerms.find(term => term.toLowerCase() === t);
+            }).filter(t => {
+                if (!t || t.length < 2) return false;
+                // Filter out terms that are just brackets, Topic references, or file names
+                const cleaned = cleanVocabTerm(t);
+                if (!cleaned || cleaned.length < 2) return false;
+                if (cleaned.match(/^\[?Topic\]?$/i)) return false;
+                if (cleaned.match(/^\[.*\]$/)) return false;
+                return true;
+            }).map(t => cleanVocabTerm(t)).filter(t => t && t.length > 0);
+            
+            console.log(`📚 Found ${uniqueTerms.length} unique vocab terms`);
+            
+            if (uniqueTerms.length === 0) {
+                return [];
+            }
+            
+            // Generate definitions using AI with retry logic (same as notes generation)
+            const flashcards = [];
+            const BATCH_SIZE = 4; // Process 4 at a time with delays
+            const BATCH_DELAY = 100; // 100ms delay between batches
+            
+            // Helper function to generate definition using retryWithBackoff
+            async function generateDefinition(term, context) {
+                try {
+                    const prompt = `Based on the following study notes content, provide a concise definition (1-2 sentences max) for the term "${term}". Only return the definition, nothing else.
+
+STUDY NOTES CONTENT:
+${context.substring(0, 5000)}
+
+TERM: ${term}
+
+Definition:`;
+                    
+                    const definition = await retryWithBackoff(async () => {
+                        const workerApiBase = 'https://sparkling-lake-6be2.quintify2.workers.dev';
+                        const aiResponse = await fetch(`${workerApiBase}/api/ai-request`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ prompt: prompt })
+                        });
+                        
+                        if (!aiResponse.ok) {
+                            const errorText = await aiResponse.text();
+                            throw new Error(`Flashcard Generation Error: ${aiResponse.status} - ${errorText}`);
+                        }
+                        
+                        const aiData = await aiResponse.json();
+                        if (aiData.queued) {
+                            // Wait for queue and retry
+                            const waitTime = aiData.waitTime || aiData.estimatedWait || 5000;
+                            console.log(`Flashcard request queued for "${term}", waiting ${Math.ceil(waitTime / 1000)}s...`);
+                            await new Promise(resolve => setTimeout(resolve, Math.min(waitTime, 10000)));
+                            // Retry the request
+                            throw new Error('QUEUED_RETRY'); // Special error to trigger retry
+                        }
+                        
+                        return aiData?.result || '';
+                    }, 5, 2000); // 5 retries with 2s base delay
+                    
+                    if (!definition) return null;
+                    
+                    let cleanedDefinition = definition.trim();
+                    cleanedDefinition = cleanedDefinition.replace(/^(?:Definition:?\s*|"|')/i, '').replace(/["']$/g, '').trim();
+                    
+                    if (cleanedDefinition && cleanedDefinition.length > 0) {
+                        return { term, definition: cleanedDefinition };
+                    }
+                    return null;
+                } catch (error) {
+                    console.error(`Error generating definition for ${term}:`, error);
+                    return null;
+                }
+            }
+            
+            // Process terms in batches (like notes generation)
+            for (let i = 0; i < uniqueTerms.length; i += BATCH_SIZE) {
+                const batch = uniqueTerms.slice(i, i + BATCH_SIZE);
+                
+                // Process batch in parallel (queue worker handles rate limiting)
+                const batchPromises = batch.map(term => generateDefinition(term, contextContent));
+                const results = await Promise.allSettled(batchPromises);
+                
+                results.forEach((result) => {
+                    if (result.status === 'fulfilled' && result.value) {
+                        flashcards.push(result.value);
+                    }
+                });
+                
+                // Update loading message
+                if (loadingDiv && loadingDiv.parentNode) {
+                    const progressText = loadingDiv.querySelector('p:last-child');
+                    if (progressText) {
+                        progressText.textContent = `Extracting terms and generating definitions (${Math.min(i + BATCH_SIZE, uniqueTerms.length)}/${uniqueTerms.length} terms processed, ${flashcards.length} flashcards created)`;
+                    }
+                }
+                
+                // Delay between batches
+                if (i + BATCH_SIZE < uniqueTerms.length) {
+                    await new Promise(resolve => setTimeout(resolve, BATCH_DELAY));
+                }
+            }
+            
+            return flashcards;
+        }
+        
+        async function showFlashcards(scope) {
+            // Show loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 10001;
+                background: rgba(0, 0, 0, 0.9);
+                padding: 2rem;
+                border-radius: 20px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                color: #fff;
+                text-align: center;
+            `;
+            loadingDiv.innerHTML = `
+                <div class="loading-wave">
+                    <div class="loading-wave-bar"></div>
+                    <div class="loading-wave-bar"></div>
+                    <div class="loading-wave-bar"></div>
+                    <div class="loading-wave-bar"></div>
+                    <div class="loading-wave-bar"></div>
+                </div>
+                <p style="margin-top: 2rem; color: #6ca0ff; font-size: 1.1rem; font-weight: 600;">Generating flashcards...</p>
+                <p style="margin-top: 1rem; color: #aaa; font-size: 0.9rem;">Extracting terms and generating definitions</p>
+            `;
+            document.body.appendChild(loadingDiv);
+            
+            try {
+                const flashcards = await extractFlashcardsFromNotes(scope, loadingDiv);
+                
+                loadingDiv.remove();
+                
+                if (flashcards.length === 0) {
+                    alert('No flashcards could be generated. No vocabulary terms were found in the selected topics.');
+                    return;
+                }
+                
+                // Display flashcards with the new improved UI
+                displayFlashcards(flashcards, 0, scope);
+            } catch (error) {
+                loadingDiv.remove();
+                console.error('Error generating flashcards:', error);
+                alert('Error generating flashcards: ' + error.message);
+            }
+        }
+        
+        function restoreFlashcards(courseId, savedData) {
+            if (!savedData || !savedData.flashcards || savedData.flashcards.length === 0) {
+                alert('No saved flashcard data found.');
+                return;
+            }
+            
+            displayFlashcards(savedData.flashcards, savedData.currentIndex || 0, savedData.scope);
+        }
+        
+        function displayFlashcards(flashcards, startIndex = 0, scope = 'all') {
+            const courseId = String(currentCourse?.id);
+            
+            // Create flashcard display with enhanced styling
+            const flashcardContainer = document.createElement('div');
+            flashcardContainer.id = 'flashcardContainer';
+            flashcardContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(20, 20, 40, 0.98) 100%);
+                backdrop-filter: blur(20px);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                z-index: 10001;
+                padding: 2rem;
+                animation: fadeIn 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(flashcardContainer);
+            
+            let currentIndex = Math.max(0, Math.min(startIndex, flashcards.length - 1));
+            let isFlipped = false;
+            
+            // Save progress function
+            const saveProgress = () => {
+                if (courseId) {
+                    saveFlashcardData(courseId, {
+                        flashcards: flashcards,
+                        currentIndex: currentIndex,
+                        scope: scope
+                    });
+                }
+            };
+            
+            function renderCard() {
+                // Save progress before rendering
+                saveProgress();
+                
+                if (currentIndex >= flashcards.length) {
+                    // Clear saved progress when finished
+                    if (courseId) {
+                        clearFlashcardData(courseId);
+                    }
+                    
+                    flashcardContainer.innerHTML = `
+                        <div style="text-align: center; color: #fff; animation: fadeInUp 0.5s ease-out;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem; animation: bounce 1s ease-in-out infinite;">🎉</div>
+                            <h2 style="margin-bottom: 1rem; background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 2.5rem;">All Done!</h2>
+                            <p style="margin-bottom: 2rem; font-size: 1.2rem; opacity: 0.8;">You've reviewed all ${flashcards.length} flashcards</p>
+                            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                                <button id="restartFlashcards" style="
+                                    padding: 1rem 2rem;
+                                    border-radius: 12px;
+                                    background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+                                    border: none;
+                                    color: #fff;
+                                    font-size: 1.1rem;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                                ">🔄 Start Over</button>
+                                <button id="closeFlashcards" style="
+                                    padding: 1rem 2rem;
+                                    border-radius: 12px;
+                                    background: rgba(255, 255, 255, 0.1);
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                    color: #fff;
+                                    font-size: 1.1rem;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                ">✕ Close</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    flashcardContainer.querySelector('#restartFlashcards').addEventListener('click', () => {
+                        currentIndex = 0;
+                        isFlipped = false;
+                        renderCard();
+                    });
+                    
+                    flashcardContainer.querySelector('#restartFlashcards').addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-2px) scale(1.05)';
+                        this.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.6)';
+                    });
+                    flashcardContainer.querySelector('#restartFlashcards').addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0) scale(1)';
+                        this.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+                    });
+                    
+                    flashcardContainer.querySelector('#closeFlashcards').addEventListener('click', () => {
+                        flashcardContainer.style.animation = 'fadeOut 0.3s ease-out';
+                        setTimeout(() => flashcardContainer.remove(), 300);
+                    });
+                    return;
+                }
+                
+                const card = flashcards[currentIndex];
+                const progressPercent = ((currentIndex + 1) / flashcards.length) * 100;
+                
+                flashcardContainer.innerHTML = `
+                    <style>
+                        @keyframes cardSlideIn {
+                            from {
+                                opacity: 0;
+                                transform: translateX(50px) scale(0.9);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateX(0) scale(1);
+                            }
+                        }
+                        .flashcard-card {
+                            animation: cardSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                        }
+                    </style>
+                    <div style="text-align: center; margin-bottom: 1.5rem; color: #fff; width: 100%; max-width: 600px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.9rem; opacity: 0.7;">Card ${currentIndex + 1} of ${flashcards.length}</span>
+                            <span style="font-size: 0.9rem; opacity: 0.7;">${Math.round(progressPercent)}%</span>
+                        </div>
+                        <div style="width: 100%; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden;">
+                            <div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%); transition: width 0.3s ease; border-radius: 10px;"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="flashcard" class="flashcard-card" style="
+                        width: 90%;
+                        max-width: 650px;
+                        min-height: 350px;
+                        background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+                        border-radius: 24px;
+                        padding: 3.5rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+                        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(102, 126, 234, 0.3);
+                        color: #fff;
+                        font-size: 1.6rem;
+                        font-weight: 600;
+                        text-align: center;
+                        position: relative;
+                        overflow: hidden;
+                    ">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none;"></div>
+                        <div id="cardFront" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 2rem; box-sizing: border-box; word-wrap: break-word; overflow-wrap: break-word; transition: opacity 0.3s ease, transform 0.3s ease;">${card.term}</div>
+                        <div id="cardBack" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; padding: 2rem; box-sizing: border-box; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.6; opacity: 0; transform: scale(0.8); pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease;">${card.definition}</div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center;">
+                        <button id="prevCard" style="
+                            padding: 0.9rem 1.8rem;
+                            border-radius: 12px;
+                            background: rgba(255, 255, 255, 0.1);
+                            border: 2px solid rgba(255, 255, 255, 0.2);
+                            color: #fff;
+                            font-size: 1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            ${currentIndex === 0 ? 'opacity: 0.4; cursor: not-allowed;' : ''}
+                        " ${currentIndex === 0 ? 'disabled' : ''}>← Previous</button>
+                        
+                        <button id="flipCard" style="
+                            padding: 0.9rem 1.8rem;
+                            border-radius: 12px;
+                            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
+                            border: none;
+                            color: #fff;
+                            font-size: 1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                        ">🔄 Flip</button>
+                        
+                        <button id="nextCard" style="
+                            padding: 0.9rem 1.8rem;
+                            border-radius: 12px;
+                            background: rgba(255, 255, 255, 0.1);
+                            border: 2px solid rgba(255, 255, 255, 0.2);
+                            color: #fff;
+                            font-size: 1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">Next →</button>
+                        
+                        <button id="closeFlashcards" style="
+                            padding: 0.9rem 1.8rem;
+                            border-radius: 12px;
+                            background: rgba(255, 0, 0, 0.2);
+                            border: 2px solid rgba(255, 0, 0, 0.3);
+                            color: #fff;
+                            font-size: 1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">✕ Close</button>
+                    </div>
+                `;
+                
+                const flashcard = flashcardContainer.querySelector('#flashcard');
+                const cardFront = flashcardContainer.querySelector('#cardFront');
+                const cardBack = flashcardContainer.querySelector('#cardBack');
+                const flipBtn = flashcardContainer.querySelector('#flipCard');
+                const prevBtn = flashcardContainer.querySelector('#prevCard');
+                const nextBtn = flashcardContainer.querySelector('#nextCard');
+                const closeBtn = flashcardContainer.querySelector('#closeFlashcards');
+                
+                // Add hover effects to card
+                flashcard.addEventListener('mouseenter', () => {
+                    if (!isFlipped) {
+                        flashcard.style.transform = 'translateY(-5px) scale(1.02)';
+                        flashcard.style.boxShadow = '0 25px 70px rgba(0, 0, 0, 0.7), 0 0 50px rgba(102, 126, 234, 0.4)';
+                    }
+                });
+                flashcard.addEventListener('mouseleave', () => {
+                    if (!isFlipped) {
+                        flashcard.style.transform = 'translateY(0) scale(1)';
+                        flashcard.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(102, 126, 234, 0.3)';
+                    }
+                });
+                
+                // Add hover effects to buttons
+                [prevBtn, nextBtn, flipBtn, closeBtn].forEach(btn => {
+                    if (btn && !btn.disabled) {
+                        btn.addEventListener('mouseenter', function() {
+                            this.style.transform = 'translateY(-2px)';
+                            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+                        });
+                        btn.addEventListener('mouseleave', function() {
+                            this.style.transform = 'translateY(0)';
+                            this.style.boxShadow = 'none';
+                        });
+                    }
+                });
+                
+                const flipCard = () => {
+                    isFlipped = !isFlipped;
+                    if (isFlipped) {
+                        // Show back, hide front
+                        cardFront.style.opacity = '0';
+                        cardFront.style.transform = 'scale(0.8)';
+                        cardFront.style.pointerEvents = 'none';
+                        cardBack.style.opacity = '1';
+                        cardBack.style.transform = 'scale(1)';
+                        cardBack.style.pointerEvents = 'auto';
+                    } else {
+                        // Show front, hide back
+                        cardFront.style.opacity = '1';
+                        cardFront.style.transform = 'scale(1)';
+                        cardFront.style.pointerEvents = 'auto';
+                        cardBack.style.opacity = '0';
+                        cardBack.style.transform = 'scale(0.8)';
+                        cardBack.style.pointerEvents = 'none';
+                    }
+                    saveProgress();
+                };
+                
+                flashcard.addEventListener('click', flipCard);
+                flipBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    flipCard();
+                });
+                
+                prevBtn.addEventListener('click', () => {
+                    if (currentIndex > 0) {
+                        currentIndex--;
+                        isFlipped = false;
+                        renderCard();
+                    }
+                });
+                
+                nextBtn.addEventListener('click', () => {
+                    if (currentIndex < flashcards.length - 1) {
+                        currentIndex++;
+                        isFlipped = false;
+                        renderCard();
+                    } else {
+                        // Automatically go to completion screen
+                        currentIndex++;
+                        renderCard();
+                    }
+                });
+                
+                closeBtn.addEventListener('click', () => {
+                    saveProgress();
+                    flashcardContainer.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => flashcardContainer.remove(), 300);
+                });
+                
+                // Keyboard navigation
+                const handleKeyPress = (e) => {
+                    if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                        currentIndex--;
+                        isFlipped = false;
+                        renderCard();
+                    } else if (e.key === 'ArrowRight' && currentIndex < flashcards.length) {
+                        currentIndex++;
+                        isFlipped = false;
+                        renderCard();
+                    } else if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        flipCard();
+                    } else if (e.key === 'Escape') {
+                        saveProgress();
+                        flashcardContainer.style.animation = 'fadeOut 0.3s ease-out';
+                        setTimeout(() => {
+                            flashcardContainer.remove();
+                            document.removeEventListener('keydown', handleKeyPress);
+                        }, 300);
+                    }
+                };
+                
+                document.addEventListener('keydown', handleKeyPress);
+                
+                // Clean up on close
+                const originalClose = closeBtn.onclick;
+                closeBtn.onclick = () => {
+                    document.removeEventListener('keydown', handleKeyPress);
+                    if (originalClose) originalClose();
+                };
+            }
+            
+            renderCard();
+        }
+        
         async function generateQuiz(scope) {
             if (!currentCourse) return;
             
@@ -2616,7 +4214,8 @@
                 quizPrompt += `- Keep explanations to ONE SENTENCE only\n`;
                 quizPrompt += `- Vary difficulty across easy, medium, and challenging questions\n`;
                 
-                // Call AI through worker
+                // Call AI through worker with retry logic (same as notes generation)
+                const quizContent = await retryWithBackoff(async () => {
                 const workerApiBase = 'https://sparkling-lake-6be2.quintify2.workers.dev';
                 const response = await fetch(`${workerApiBase}/api/ai-request`, {
                     method: 'POST',
@@ -2627,14 +4226,22 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Failed to generate quiz');
+                        const errorText = await response.text();
+                        throw new Error(`Quiz Generation Error: ${response.status} - ${errorText}`);
                 }
                 
                 const data = await response.json();
                 if (data.queued) {
-                    throw new Error(`Queue position: ${data.position + 1}, estimated wait: ${Math.ceil(data.estimatedWait / 1000)}s`);
-                }
-                const quizContent = data?.result || '';
+                        // Wait for queue and retry
+                        const waitTime = data.waitTime || data.estimatedWait || 5000;
+                        console.log(`Quiz request queued, position: ${data.position + 1}, waiting ${Math.ceil(waitTime / 1000)}s...`);
+                        await new Promise(resolve => setTimeout(resolve, Math.min(waitTime, 10000)));
+                        // Retry the request
+                        throw new Error('QUEUED_RETRY'); // Special error to trigger retry
+                    }
+                    
+                    return data?.result || '';
+                }, 5, 2000); // 5 retries with 2s base delay
                 
                 // Display quiz - hide all existing pages first
                 const pages = document.querySelectorAll('.topic-page');
@@ -3570,8 +5177,8 @@
                 if (welcomeScreen) welcomeScreen.classList.add('hidden');
                 dashboard.classList.add('active');
                 
-                // Render content
-                renderCourses();
+                // Show main menu instead of courses directly
+                showMainMenu();
                 
             } catch (error) {
                 console.error('Error loading dashboard:', error);
@@ -3583,6 +5190,46 @@
             }
         }
 
+
+        function showMainMenu() {
+            if (mainMenu) mainMenu.classList.remove('hidden');
+            if (notesContent) {
+                notesContent.classList.remove('active');
+                notesContent.style.display = 'none';
+            }
+            // Disable scrolling when main menu is shown
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        }
+        
+        function showClasses() {
+            if (mainMenu) mainMenu.classList.add('hidden');
+            if (notesContent) {
+                notesContent.style.display = 'block';
+                notesContent.classList.add('active');
+            }
+            // Re-enable scrolling when showing classes
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            renderCourses();
+        }
+        
+        // Back to menu button handler
+        const backToMenuBtn = document.getElementById('backToMenuBtn');
+        if (backToMenuBtn) {
+            backToMenuBtn.addEventListener('click', () => {
+                if (notesContent) {
+                    notesContent.style.display = 'none';
+                    notesContent.classList.remove('active');
+                }
+                if (mainMenu) {
+                    mainMenu.classList.remove('hidden');
+                }
+                // Disable scrolling when returning to main menu
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
+            });
+        }
 
         function renderCourses() {
             courseGrid.innerHTML = '';
@@ -3687,11 +5334,44 @@
                 
                 console.log('Loading course notes for:', course.id, 'Has notes:', !!(savedNotes[courseIdStr] || savedNotes[course.id]));
                 
-                // Show/hide Update Notes button based on whether notes exist
-                const updateNotesBtn = document.getElementById('updateNotesBtn');
+                // Show header buttons when viewing notes
+                const headerButtons = document.querySelector('.header-buttons');
+                if (headerButtons) {
+                    headerButtons.style.display = 'flex';
+                }
+                
                 const hasNotes = !!(savedNotes[courseIdStr] || savedNotes[course.id]);
+                
+                // Show/hide buttons based on whether notes exist
+                const updateNotesBtn = document.getElementById('updateNotesBtn');
                 if (updateNotesBtn) {
-                    updateNotesBtn.style.display = hasNotes ? 'block' : 'none';
+                    updateNotesBtn.style.display = hasNotes ? 'flex' : 'none';
+                }
+                
+                const saveNotesBtn = document.getElementById('saveNotesBtn');
+                if (saveNotesBtn) {
+                    saveNotesBtn.style.display = hasNotes ? 'flex' : 'none';
+                }
+                
+                const clearNotesBtn = document.getElementById('clearNotesBtn');
+                if (clearNotesBtn) {
+                    clearNotesBtn.style.display = hasNotes ? 'flex' : 'none';
+                }
+                
+                // Always show Resources, Quiz, and Flashcard buttons when in notes view
+                const resourcesBtn = document.getElementById('resourcesBtn');
+                if (resourcesBtn) {
+                    resourcesBtn.style.display = 'flex';
+                }
+                
+                const quizGeneratorBtn = document.getElementById('quizGeneratorBtn');
+                if (quizGeneratorBtn) {
+                    quizGeneratorBtn.style.display = 'flex';
+                }
+                
+                const flashcardBtn = document.getElementById('flashcardBtn');
+                if (flashcardBtn) {
+                    flashcardBtn.style.display = 'flex';
                 }
                 
                 // Check if we have saved notes for this course
@@ -4531,12 +6211,24 @@ ${filenameHints}`;
                                          error.message.includes('ERR_NETWORK_CHANGED') ||
                                          error.message.includes('NetworkError');
                     
-                    if (attempt === maxRetries || !isNetworkError) {
+                    // Also retry on queue responses and certain HTTP errors
+                    const isRetryableError = error.message.includes('QUEUED_RETRY') ||
+                                           error.message.includes('429') ||
+                                           error.message.includes('500') ||
+                                           error.message.includes('502') ||
+                                           error.message.includes('503') ||
+                                           error.message.includes('504');
+                    
+                    if (attempt === maxRetries || (!isNetworkError && !isRetryableError)) {
                         throw error;
                     }
                     
                     const delay = baseDelay * Math.pow(2, attempt);
+                    if (error.message.includes('QUEUED_RETRY')) {
+                        console.log(`Retrying after queue wait (attempt ${attempt + 1}/${maxRetries})...`);
+                    } else {
                     console.log(`Retry attempt ${attempt + 1}/${maxRetries} in ${delay}ms...`);
+                    }
                     await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
@@ -4896,6 +6588,22 @@ CRITICAL FORMATTING RULES:
                 // Pass preserveExistingPages=true to update content without clearing existing pages
                 renderSavedNotes(course, true);
                 
+                // Ensure header buttons are visible after update
+                const headerButtons = document.querySelector('.header-buttons');
+                if (headerButtons) {
+                    headerButtons.style.display = 'flex';
+                    const saveNotesBtn = document.getElementById('saveNotesBtn');
+                    const clearNotesBtn = document.getElementById('clearNotesBtn');
+                    const updateNotesBtn = document.getElementById('updateNotesBtn');
+                    const resourcesBtn = document.getElementById('resourcesBtn');
+                    const quizGeneratorBtn = document.getElementById('quizGeneratorBtn');
+                    if (saveNotesBtn) saveNotesBtn.style.display = 'flex';
+                    if (clearNotesBtn) clearNotesBtn.style.display = 'flex';
+                    if (updateNotesBtn) updateNotesBtn.style.display = 'flex';
+                    if (resourcesBtn) resourcesBtn.style.display = 'flex';
+                    if (quizGeneratorBtn) quizGeneratorBtn.style.display = 'flex';
+                }
+                
                 console.log(`✓ Successfully updated notes with ${plan.length} new/updated units and ${totalTopics} topics`);
                 
             } catch (error) {
@@ -5007,6 +6715,23 @@ CRITICAL FORMATTING RULES:
                 renderSidebarFromPlan(plan);
                 try { sidebar.classList.remove('hidden'); } catch(_) {}
                 try { pagesContainer.classList.remove('hidden'); } catch(_) {}
+                
+                // Show header buttons after notes are generated
+                const headerButtons = document.querySelector('.header-buttons');
+                if (headerButtons) {
+                    headerButtons.style.display = 'flex';
+                    const saveNotesBtn = document.getElementById('saveNotesBtn');
+                    const clearNotesBtn = document.getElementById('clearNotesBtn');
+                    const updateNotesBtn = document.getElementById('updateNotesBtn');
+                    const resourcesBtn = document.getElementById('resourcesBtn');
+                    const quizGeneratorBtn = document.getElementById('quizGeneratorBtn');
+                    if (saveNotesBtn) saveNotesBtn.style.display = 'flex';
+                    if (clearNotesBtn) clearNotesBtn.style.display = 'flex';
+                    if (updateNotesBtn) updateNotesBtn.style.display = 'flex';
+                    if (resourcesBtn) resourcesBtn.style.display = 'flex';
+                    if (quizGeneratorBtn) quizGeneratorBtn.style.display = 'flex';
+                }
+                
                 // Show first topic now
                 const firstUnit = plan[0];
                 const firstTopic = firstUnit && firstUnit.topics && firstUnit.topics[0];
@@ -5778,7 +7503,8 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
                 if (firstColorMatch) {
                     applyAccentColorsFromBackground(firstColorMatch[0]);
                 } else {
-                    applyAccentColors('#667eea', '#764ba2');
+                    // Default gradient colors
+                    applyAccentColorsFromBackground('#667eea');
                 }
             } else {
                 // Remove gradient style tag if it exists
@@ -5814,14 +7540,113 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
             }
         }
         
-        function applyAccentColorsFromBackground(bgColor) {
-            // Generate vibrant accents from background color
-            const accent1 = shiftToAccentColor(bgColor, 1);
-            const accent2 = shiftToAccentColor(bgColor, 2);
-            applyAccentColors(accent1, accent2);
+        function getLuminance(hex) {
+            // Remove # if present
+            hex = hex.replace('#', '');
+            
+            // Convert to RGB
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            
+            // Calculate relative luminance using sRGB formula
+            const [rs, gs, bs] = [r, g, b].map(val => {
+                val = val / 255;
+                return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
+            });
+            
+            return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
         }
         
-        function shiftToAccentColor(hex, variant) {
+        function isDarkColor(hex) {
+            const luminance = getLuminance(hex);
+            return luminance < 0.5;
+        }
+        
+        function isVeryDarkColor(hex) {
+            const luminance = getLuminance(hex);
+            return luminance < 0.05;
+        }
+        
+        function isWhiteColor(hex) {
+            const luminance = getLuminance(hex);
+            return luminance > 0.98;
+        }
+        
+        function applyAccentColorsFromBackground(bgColor) {
+            const luminance = getLuminance(bgColor);
+            
+            // Very dark background (luminance < 0.05) → white accents
+            if (luminance < 0.05) {
+                applyAccentColors('#ffffff', '#f0f0f0');
+            }
+            // Very light/white background (luminance > 0.98) → black accents
+            else if (luminance > 0.98) {
+                applyAccentColors('#000000', '#1a1a1a');
+            }
+            // Gradual transition zones
+            else if (luminance < 0.2) {
+                // Dark but not very dark - blend from white to colored
+                const blend = (luminance - 0.05) / 0.15; // 0 to 1 as luminance goes from 0.05 to 0.2
+                const isDark = true;
+                const coloredAccent1 = shiftToAccentColor(bgColor, 1, isDark);
+                const coloredAccent2 = shiftToAccentColor(bgColor, 2, isDark);
+                
+                // Blend white with colored accents
+                const whiteR = 255, whiteG = 255, whiteB = 255;
+                const colored1R = parseInt(coloredAccent1.substring(1, 3), 16);
+                const colored1G = parseInt(coloredAccent1.substring(3, 5), 16);
+                const colored1B = parseInt(coloredAccent1.substring(5, 7), 16);
+                const colored2R = parseInt(coloredAccent2.substring(1, 3), 16);
+                const colored2G = parseInt(coloredAccent2.substring(3, 5), 16);
+                const colored2B = parseInt(coloredAccent2.substring(5, 7), 16);
+                
+                const r1 = Math.round(whiteR * (1 - blend) + colored1R * blend);
+                const g1 = Math.round(whiteG * (1 - blend) + colored1G * blend);
+                const b1 = Math.round(whiteB * (1 - blend) + colored1B * blend);
+                const r2 = Math.round(whiteR * (1 - blend) + colored2R * blend);
+                const g2 = Math.round(whiteG * (1 - blend) + colored2G * blend);
+                const b2 = Math.round(whiteB * (1 - blend) + colored2B * blend);
+                
+                const toHex = (n) => n.toString(16).padStart(2, '0');
+                applyAccentColors(`#${toHex(r1)}${toHex(g1)}${toHex(b1)}`, `#${toHex(r2)}${toHex(g2)}${toHex(b2)}`);
+            }
+            else if (luminance > 0.85) {
+                // Light but not white - blend from colored to black
+                const blend = (luminance - 0.85) / 0.13; // 0 to 1 as luminance goes from 0.85 to 0.98
+                const isDark = false;
+                const coloredAccent1 = shiftToAccentColor(bgColor, 1, isDark);
+                const coloredAccent2 = shiftToAccentColor(bgColor, 2, isDark);
+                
+                // Blend colored accents with black
+                const blackR = 0, blackG = 0, blackB = 0;
+                const colored1R = parseInt(coloredAccent1.substring(1, 3), 16);
+                const colored1G = parseInt(coloredAccent1.substring(3, 5), 16);
+                const colored1B = parseInt(coloredAccent1.substring(5, 7), 16);
+                const colored2R = parseInt(coloredAccent2.substring(1, 3), 16);
+                const colored2G = parseInt(coloredAccent2.substring(3, 5), 16);
+                const colored2B = parseInt(coloredAccent2.substring(5, 7), 16);
+                
+                const r1 = Math.round(colored1R * (1 - blend) + blackR * blend);
+                const g1 = Math.round(colored1G * (1 - blend) + blackG * blend);
+                const b1 = Math.round(colored1B * (1 - blend) + blackB * blend);
+                const r2 = Math.round(colored2R * (1 - blend) + blackR * blend);
+                const g2 = Math.round(colored2G * (1 - blend) + blackG * blend);
+                const b2 = Math.round(colored2B * (1 - blend) + blackB * blend);
+                
+                const toHex = (n) => n.toString(16).padStart(2, '0');
+                applyAccentColors(`#${toHex(r1)}${toHex(g1)}${toHex(b1)}`, `#${toHex(r2)}${toHex(g2)}${toHex(b2)}`);
+            }
+            else {
+                // Colored background → lighter/darker version based on brightness
+                const isDark = isDarkColor(bgColor);
+                const accent1 = shiftToAccentColor(bgColor, 1, isDark);
+                const accent2 = shiftToAccentColor(bgColor, 2, isDark);
+                applyAccentColors(accent1, accent2);
+            }
+        }
+        
+        function shiftToAccentColor(hex, variant, isDark) {
             // Remove # if present
             hex = hex.replace('#', '');
             
@@ -5832,16 +7657,28 @@ Use this as format and do not actually add in notes. Formatted for google doc ta
             
             let newR, newG, newB;
             
-            if (variant === 1) {
-                // First accent: shift towards purples/blues while maintaining brightness
-                newR = Math.min(255, r + 50);
-                newG = Math.min(255, g + 20);
-                newB = Math.min(255, b + 30);
+            if (isDark) {
+                // Dark background → lighter version
+                if (variant === 1) {
+                    newR = Math.min(255, r + 60);
+                    newG = Math.min(255, g + 60);
+                    newB = Math.min(255, b + 60);
+                } else {
+                    newR = Math.min(255, r + 40);
+                    newG = Math.min(255, g + 40);
+                    newB = Math.min(255, b + 40);
+                }
             } else {
-                // Second accent: darker purple variant
-                newR = Math.min(255, r + 30);
-                newG = Math.min(255, g + 10);
-                newB = Math.min(255, b + 20);
+                // Light background → darker version
+                if (variant === 1) {
+                    newR = Math.max(0, r - 40);
+                    newG = Math.max(0, g - 40);
+                    newB = Math.max(0, b - 40);
+                } else {
+                    newR = Math.max(0, r - 60);
+                    newG = Math.max(0, g - 60);
+                    newB = Math.max(0, b - 60);
+                }
             }
             
             // Convert back to hex
