@@ -1898,7 +1898,7 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             margin-bottom: 1.5rem;
-            margin-top: 1rem;
+            margin-top: 5rem;
             font-size: 1rem;
             font-weight: 600;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
@@ -3833,17 +3833,7 @@
             if (backBtn) {
                 backBtn.addEventListener('click', () => {
                     if (splitView) splitView.classList.remove('active');
-                    showMainMenu();
-                    // Hide header buttons when going back to menu
-                    const headerButtons = document.querySelector('.header-buttons');
-                    if (headerButtons) {
-                        const buttonsToHide = headerButtons.querySelectorAll('.header-btn');
-                        buttonsToHide.forEach(btn => {
-                            if (btn.id !== 'settingsBtn') {
-                                btn.style.display = 'none';
-                            }
-                        });
-                    }
+                    showClasses();
                 });
             }
             // Notes management
@@ -6741,6 +6731,9 @@ Definition:`;
                 notesContent.classList.remove('active');
                 notesContent.style.display = 'none';
             }
+            // Restore body scrolling when returning to main menu
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
             const calendarContent = document.getElementById('calendarContent');
             if (calendarContent) {
                 calendarContent.style.display = 'none';
@@ -6762,9 +6755,9 @@ Definition:`;
                 notesContent.style.display = 'block';
                 notesContent.classList.add('active');
             }
-            // Re-enable scrolling when showing classes
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
+            // Prevent body scrolling when notes are active
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
             renderCourses();
         }
         
@@ -7415,9 +7408,9 @@ Definition:`;
                 if (mainMenu) {
                     mainMenu.classList.remove('hidden');
                 }
-                // Disable scrolling when returning to main menu
-                document.body.style.overflow = 'hidden';
-                document.documentElement.style.overflow = 'hidden';
+                // Restore scrolling when returning to main menu
+                document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
             });
         }
         
