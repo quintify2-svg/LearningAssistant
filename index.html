@@ -22,7 +22,7 @@
         :root {
             --accent-color-1: #667eea;
             --accent-color-2: #764ba2;
-            --note-font-size: 16px;
+            --note-font-size: clamp(14px, 2vw, 16px);
         }
         
         body {
@@ -31,33 +31,23 @@
             color: #fff;
             min-height: 100vh;
             overflow-x: hidden;
+            font-size: clamp(14px, 2vw, 16px);
         }
         
         html {
             background: #000;
             width: 100%;
             height: 100%;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         
         body {
-            width: 1344px; /* Base width - your laptop screen */
-            height: 791px; /* Base height - your laptop screen */
-            transform-origin: top left;
+            width: 100%;
+            min-height: 100vh;
             position: relative;
-            overflow: visible; /* Changed to visible to prevent clipping on scaled content */
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            min-width: 1344px; /* Maintain minimum size */
-            min-height: 791px; /* Maintain minimum size */
-        }
-        
-        /* Ensure all child elements respect box-sizing */
-        body > * {
-            box-sizing: border-box;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         
         /* Loading Screen */
@@ -104,7 +94,7 @@
         }
         
         .welcome-message {
-            font-size: 4rem;
+            font-size: clamp(2rem, 8vw, 4rem);
             font-weight: 700;
             background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
             -webkit-background-clip: text;
@@ -113,7 +103,7 @@
             letter-spacing: -0.02em;
             animation: welcomeSlideIn 1.2s cubic-bezier(0.4, 0, 0.2, 1), welcomePulse 2s ease-in-out 1.5s infinite;
             text-align: center;
-            white-space: nowrap;
+            padding: 0 1rem;
         }
         
         @keyframes welcomeSlideIn {
@@ -137,20 +127,20 @@
         }
         
         .logo {
-            font-size: 3.5rem;
+            font-size: clamp(2rem, 7vw, 3.5rem);
             font-weight: 700;
             background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 3rem;
+            margin-bottom: clamp(1.5rem, 4vw, 3rem);
             letter-spacing: -0.02em;
         }
         
         .token-input {
-            width: 520px;
-            padding: 1.5rem 2rem;
-            font-size: 1.1rem;
+            width: min(90%, 520px);
+            padding: clamp(1rem, 2vw, 1.5rem) clamp(1.5rem, 3vw, 2rem);
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
             border: 1.5px solid rgba(255, 255, 255, 0.18);
             border-radius: 16px;
             background: rgba(255, 255, 255, 0.07);
@@ -269,7 +259,7 @@
         
         .instructions-panel h3 {
             color: #fff;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3vw, 1.2rem);
             margin: 0 2.5rem 1rem 0;
             padding-bottom: 0.5rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -277,7 +267,7 @@
         
         .instructions-panel h4 {
             color: rgba(108, 160, 255, 0.9);
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
             margin: 1.5rem 0 0.5rem 0;
         }
         
@@ -310,8 +300,8 @@
         }
         
         .load-btn {
-            padding: 1.2rem 3.5rem;
-            font-size: 1.1rem;
+            padding: clamp(1rem, 2vw, 1.2rem) clamp(2rem, 5vw, 3.5rem);
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
             font-weight: 600;
             border: none;
             border-radius: 16px;
@@ -320,6 +310,8 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            min-height: 44px;
+            touch-action: manipulation;
         }
         
         .load-btn:hover {
@@ -335,8 +327,8 @@
         
         /* Button Styles */
         .btn {
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
+            padding: clamp(0.75rem, 1.5vw, 0.8rem) clamp(1.25rem, 2.5vw, 1.5rem);
+            font-size: clamp(0.9rem, 2vw, 1rem);
             font-weight: 600;
             border: none;
             border-radius: 10px;
@@ -344,6 +336,8 @@
             transition: all 0.3s ease;
             text-align: center;
             display: inline-block;
+            min-height: 44px;
+            touch-action: manipulation;
         }
         
         .btn-primary {
@@ -384,16 +378,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 2rem 3rem;
+            padding: clamp(1rem, 2vw, 2rem) clamp(1.5rem, 3vw, 3rem);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             background: rgba(0, 0, 0, 0.5);
             overflow: visible; /* Allow tooltips to show */
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         
         .header h1 {
-            font-size: 2.2rem;
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
             background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -410,13 +406,15 @@
         }
         
         .header-btn {
-            width: 50px;
-            height: 50px;
+            width: clamp(44px, 5vw, 50px);
+            height: clamp(44px, 5vw, 50px);
+            min-width: 44px;
+            min-height: 44px;
             border-radius: 8px;
             border: 2px solid rgba(255, 255, 255, 0.2);
             background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
             color: #fff;
-            font-size: 1.3rem;
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
             cursor: pointer;
             transition: all 0.3s ease;
             display: none; /* Hidden by default, shown when notes are loaded */
@@ -424,6 +422,7 @@
             justify-content: center;
             padding: 0;
             position: relative;
+            touch-action: manipulation;
         }
         
         .header-btn:hover {
@@ -608,10 +607,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-end;
-            gap: 2rem;
+            justify-content: center;
+            gap: clamp(1rem, 3vw, 2rem);
             position: relative;
             height: 100%;
+            padding: 1rem;
+            box-sizing: border-box;
+            margin-top: -10vh;
         }
         
         .pie-menu-arrows-wrapper {
@@ -634,7 +636,7 @@
         }
         
         .top-section-title {
-            font-size: 1.8rem;
+            font-size: clamp(1.2rem, 3.5vw, 1.8rem);
             font-weight: 700;
             background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
             -webkit-background-clip: text;
@@ -649,8 +651,10 @@
         }
         
         .top-section-button {
-            width: 140px;
-            height: 140px;
+            width: clamp(100px, 12vw, 140px);
+            height: clamp(100px, 12vw, 140px);
+            min-width: 80px;
+            min-height: 80px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
             border: none;
@@ -664,6 +668,7 @@
             overflow: hidden;
             animation: buttonPulse 2s ease-in-out infinite;
             flex-shrink: 0;
+            touch-action: manipulation;
         }
         
         .top-section-button::before {
@@ -702,20 +707,20 @@
         }
         
         .top-section-emoji {
-            font-size: 4rem;
+            font-size: clamp(2.5rem, 6vw, 4rem);
             position: relative;
             z-index: 1;
         }
         
         .top-section-description {
-            font-size: 0.95rem;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
             background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             filter: brightness(0.7);
             text-align: center;
-            max-width: 250px;
+            max-width: min(90%, 250px);
             line-height: 1.4;
             min-height: 2.5rem;
             display: flex;
@@ -735,19 +740,19 @@
         }
         
         .pie-menu {
-            height: 800px;
-            width: 800px;
+            height: min(80vw, 80vh, 800px);
+            width: min(80vw, 80vh, 800px);
             margin: 0;
-            margin-bottom: -400px;
+            margin-bottom: min(-20vw, -20vh, -200px);
             position: relative;
             transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
         @media (max-width: 1000px) {
             .pie-menu {
-                height: 600px;
-                width: 600px;
-                margin-bottom: -300px;
+                height: min(70vw, 70vh, 600px);
+                width: min(70vw, 70vh, 600px);
+                margin-bottom: min(-17.5vw, -17.5vh, -150px);
             }
             .pie-menu-wrapper {
                 gap: 2rem;
@@ -756,12 +761,20 @@
         
         @media (max-width: 600px) {
             .pie-menu {
-                height: 400px;
-                width: 400px;
-                margin-bottom: -200px;
+                height: min(85vw, 85vh, 400px);
+                width: min(85vw, 85vh, 400px);
+                margin-bottom: min(-21.25vw, -21.25vh, -100px);
             }
             .pie-menu-wrapper {
                 gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .pie-menu {
+                height: min(90vw, 90vh);
+                width: min(90vw, 90vh);
+                margin-bottom: min(-22.5vw, -22.5vh);
             }
         }
         
@@ -817,8 +830,10 @@
         }
         
         .menu-arrow {
-            width: 120px;
-            height: 120px;
+            width: clamp(60px, 10vw, 120px);
+            height: clamp(60px, 10vw, 120px);
+            min-width: 44px;
+            min-height: 44px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-2) 100%);
             border: none;
@@ -831,6 +846,7 @@
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
             position: relative;
             z-index: 10;
+            touch-action: manipulation;
         }
         
         .menu-arrow:hover {
@@ -843,29 +859,35 @@
         }
         
         .menu-arrow svg {
-            width: 48px;
-            height: 48px;
+            width: clamp(24px, 4vw, 48px);
+            height: clamp(24px, 4vw, 48px);
         }
         
         @media (max-width: 1000px) {
             .menu-arrow {
-                width: 90px;
-                height: 90px;
+                width: clamp(60px, 9vw, 90px);
+                height: clamp(60px, 9vw, 90px);
             }
             .menu-arrow svg {
-                width: 36px;
-                height: 36px;
+                width: clamp(24px, 3.6vw, 36px);
+                height: clamp(24px, 3.6vw, 36px);
             }
         }
         
         @media (max-width: 600px) {
             .menu-arrow {
-                width: 60px;
-                height: 60px;
+                width: clamp(44px, 10vw, 60px);
+                height: clamp(44px, 10vw, 60px);
             }
             .menu-arrow svg {
-                width: 24px;
-                height: 24px;
+                width: clamp(20px, 4vw, 24px);
+                height: clamp(20px, 4vw, 24px);
+            }
+        }
+        
+        @media (hover: none) {
+            .menu-arrow:hover {
+                transform: none;
             }
         }
         
@@ -1348,36 +1370,39 @@
         .calendar-settings-content {
             background: rgba(0, 0, 0, 0.95);
             border-radius: 16px;
-            width: 90%;
-            max-width: 500px;
+            width: min(90%, 500px);
             max-height: 90vh;
             overflow-y: auto;
             overflow-x: hidden;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             animation: slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin: 1rem;
         }
         
         .calendar-settings-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem;
+            padding: clamp(1rem, 2vw, 1.5rem);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .calendar-settings-header h3 {
             color: var(--accent-color-1);
             margin: 0;
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
         }
         
         .close-settings-btn {
-            width: 35px;
-            height: 35px;
+            width: clamp(35px, 5vw, 40px);
+            height: clamp(35px, 5vw, 40px);
+            min-width: 44px;
+            min-height: 44px;
             border-radius: 50%;
             border: none;
             background: rgba(255, 255, 255, 0.1);
+            touch-action: manipulation;
             color: #fff;
             font-size: 1.5rem;
             cursor: pointer;
@@ -1895,14 +1920,14 @@
             position: fixed;
             top: 0;
             right: -400px;
-            width: 400px;
+            width: min(400px, 90vw);
             height: 100vh;
             max-height: 100vh;
             background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(10px);
             border-left: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            padding-bottom: 2rem;
+            padding: clamp(1rem, 2vw, 2rem);
+            padding-bottom: clamp(1rem, 2vw, 2rem);
             transition: right 0.3s ease;
             z-index: 1000;
             overflow-y: auto;
@@ -2255,6 +2280,12 @@
         }
         
         /* Responsive */
+        @media (max-width: 1200px) {
+            .header {
+                padding: clamp(1rem, 2vw, 1.5rem) clamp(1rem, 2.5vw, 2rem);
+            }
+        }
+        
         @media (max-width: 768px) {
             .token-input {
                 width: 90%;
@@ -2271,7 +2302,8 @@
             
             .sidebar {
                 width: 100%;
-                height: 200px;
+                height: auto;
+                min-height: 200px;
             }
             
             .main-content {
@@ -2281,6 +2313,101 @@
             .settings-panel {
                 width: 100%;
                 right: -100%;
+            }
+            
+            .instructions-panel {
+                width: 95%;
+                max-width: none;
+                padding: 1.5rem;
+                max-height: 90vh;
+            }
+            
+            .welcome-message {
+                white-space: normal;
+                word-wrap: break-word;
+            }
+            
+            .header h1 {
+                font-size: clamp(1.2rem, 5vw, 1.8rem);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .token-input {
+                width: 95%;
+                padding: 1rem 1.5rem;
+            }
+            
+            .instructions-panel {
+                padding: 1rem;
+                width: 98%;
+            }
+            
+            .load-btn {
+                width: 100%;
+                max-width: none;
+            }
+            
+            .pie-menu-wrapper {
+                padding: 1rem;
+            }
+            
+            .settings-panel {
+                width: 100%;
+            }
+            
+            .calendar-settings-content {
+                width: 95%;
+                margin: 0.5rem;
+            }
+        }
+        
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            button, a, [role="button"] {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .btn, .header-btn, .menu-arrow {
+                -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+            }
+        }
+        
+        /* Prevent text size adjustment on mobile */
+        @media (max-width: 768px) {
+            html {
+                -webkit-text-size-adjust: 100%;
+                text-size-adjust: 100%;
+            }
+        }
+        
+        @media (orientation: landscape) and (max-height: 600px) {
+            .welcome-screen {
+                padding: 1rem;
+            }
+            
+            .welcome-message {
+                font-size: clamp(1.5rem, 5vw, 2.5rem);
+            }
+            
+            .logo {
+                font-size: clamp(1.5rem, 4vw, 2rem);
+                margin-bottom: 1rem;
+            }
+            
+            .token-input {
+                padding: 0.75rem 1.5rem;
             }
         }
         
@@ -3226,83 +3353,8 @@
     </div>
 
     <script>
-        // Responsive scaling - uses your screen (1344x791) as base, scales proportionally
-        function scaleSite() {
-            const baseWidth = 1344;
-            const baseHeight = 791;
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            
-            // Prevent scaling on very small screens (mobile) - but allow for laptops
-            const minScreenWidth = 800; // Minimum width for laptops
-            const minScreenHeight = 600; // Minimum height for laptops
-            
-            if (viewportWidth < minScreenWidth || viewportHeight < minScreenHeight) {
-                // For very small screens, just center without scaling
-                const scaleX = Math.max(viewportWidth / baseWidth, 0.5);
-                const scaleY = Math.max(viewportHeight / baseHeight, 0.5);
-                const scale = Math.min(scaleX, scaleY);
-                
-                const scaledWidth = baseWidth * scale;
-                const scaledHeight = baseHeight * scale;
-                const offsetX = (viewportWidth - scaledWidth) / 2;
-                const offsetY = (viewportHeight - scaledHeight) / 2;
-                
-                document.body.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-                document.body.style.transformOrigin = 'top left';
-                return;
-            }
-            
-            // For laptops and desktops, scale proportionally
-            // Calculate scale based on the smaller dimension ratio to maintain aspect
-            const scaleX = viewportWidth / baseWidth;
-            const scaleY = viewportHeight / baseHeight;
-            const scale = Math.min(scaleX, scaleY);
-            
-            // Don't scale larger than 1.5x to prevent things from getting too big
-            // Don't scale smaller than 0.5x to prevent things from getting too small
-            const clampedScale = Math.max(0.5, Math.min(1.5, scale));
-            
-            // Center the scaled content
-            const scaledWidth = baseWidth * clampedScale;
-            const scaledHeight = baseHeight * clampedScale;
-            const offsetX = (viewportWidth - scaledWidth) / 2;
-            const offsetY = (viewportHeight - scaledHeight) / 2;
-            
-            // Apply transform with proper origin
-            // Use transform3d for better performance and to prevent clipping
-            document.body.style.transform = `translate3d(${offsetX}px, ${offsetY}px, 0) scale(${clampedScale})`;
-            document.body.style.transformOrigin = 'top left';
-            document.body.style.willChange = 'transform'; // Hint for better rendering
-            
-            // Ensure html and body fill the viewport to prevent clipping
-            document.documentElement.style.width = '100%';
-            document.documentElement.style.height = '100%';
-            document.documentElement.style.overflow = 'hidden';
-            document.documentElement.style.position = 'relative';
-            
-            // Ensure body doesn't clip content
-            document.body.style.maxWidth = 'none';
-            document.body.style.maxHeight = 'none';
-        }
-        
-        // Debounce resize for better performance
-        let resizeTimeout;
-        function debouncedScaleSite() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(scaleSite, 100);
-        }
-        
-        // Run on load and resize
-        window.addEventListener('load', scaleSite);
-        window.addEventListener('resize', debouncedScaleSite);
-        window.addEventListener('orientationchange', scaleSite);
-        scaleSite(); // Run immediately
-        
-        // Also scale on initial page visibility
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', scaleSite);
-        }
+        // Responsive design is now handled via CSS media queries and flexible units
+        // No JavaScript scaling needed - the site adapts naturally to all screen sizes
         
         // Global variables
         let canvasToken = '';
