@@ -3833,6 +3833,11 @@
             if (backBtn) {
                 backBtn.addEventListener('click', () => {
                     if (splitView) splitView.classList.remove('active');
+                    // Hide header buttons when going back to courses view
+                    const headerButtons = document.querySelector('.header-buttons');
+                    if (headerButtons) {
+                        headerButtons.style.display = 'none';
+                    }
                     showClasses();
                 });
             }
@@ -7551,6 +7556,11 @@ Definition:`;
                 }
                 if (mainMenu) {
                     mainMenu.classList.remove('hidden');
+                }
+                // Hide header buttons when leaving notes view
+                const headerButtons = document.querySelector('.header-buttons');
+                if (headerButtons) {
+                    headerButtons.style.display = 'none';
                 }
                 // Restore scrolling when returning to main menu
                 document.body.style.overflow = '';
