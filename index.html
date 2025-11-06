@@ -4358,40 +4358,41 @@
             });
         }
         
+        // Helper function to clean file references from notes content (HTML or text)
+        // Must be defined at top level so it's accessible to all functions
+        function cleanFileReferences(content) {
+            if (!content) return '';
+            
+            // Remove various file reference patterns from HTML/text
+            // Pattern: "[Based on[Topic####]]" or "[Based on Topic####.pptx]"
+            content = content.replace(/\[Based on\s*\[?Topic[^\]]*\]?\]?/gi, '');
+            content = content.replace(/\[Based on [^\]]+\]/gi, '');
+            content = content.replace(/\[From [^\]]+\]/gi, '');
+            content = content.replace(/\[See [^\]]+\]/gi, '');
+            content = content.replace(/\[Topic[^\]]+\]/gi, '');
+            
+            // Remove [Topic##.###] pattern (e.g., [Topic1.2.3] or [Topic2.1])
+            content = content.replace(/\[Topic\d+\.\d+([\.\d]+)?\]/gi, '');
+            
+            // Remove file references in parentheses
+            content = content.replace(/\(Based on\s*\[?Topic[^\]]*\]?\)/gi, '');
+            content = content.replace(/\(Based on [^)]+\)/gi, '');
+            content = content.replace(/\(From [^)]+\)/gi, '');
+            content = content.replace(/\(See [^)]+\)/gi, '');
+            content = content.replace(/\(Topic[^)]+\)/gi, '');
+            
+            // Clean up any double spaces that might result
+            content = content.replace(/\s{2,}/g, ' ');
+            
+            return content;
+        }
+        
         async function extractFlashcardsFromNotes(scope, loadingDiv = null) {
             if (!currentCourse) return [];
             
             const courseId = String(currentCourse.id);
             const notes = savedNotes[courseId];
             if (!notes) return [];
-            
-            // Helper to clean file references from notes content (HTML or text)
-            function cleanFileReferences(content) {
-                if (!content) return '';
-                
-                // Remove various file reference patterns from HTML/text
-                // Pattern: "[Based on[Topic####]]" or "[Based on Topic####.pptx]"
-                content = content.replace(/\[Based on\s*\[?Topic[^\]]*\]?\]?/gi, '');
-                content = content.replace(/\[Based on [^\]]+\]/gi, '');
-                content = content.replace(/\[From [^\]]+\]/gi, '');
-                content = content.replace(/\[See [^\]]+\]/gi, '');
-                content = content.replace(/\[Topic[^\]]+\]/gi, '');
-                
-                // Remove [Topic##.###] pattern (e.g., [Topic1.2.3] or [Topic2.1])
-                content = content.replace(/\[Topic\d+\.\d+([\.\d]+)?\]/gi, '');
-                
-                // Remove file references in parentheses
-                content = content.replace(/\(Based on\s*\[?Topic[^\]]*\]?\)/gi, '');
-                content = content.replace(/\(Based on [^)]+\)/gi, '');
-                content = content.replace(/\(From [^)]+\)/gi, '');
-                content = content.replace(/\(See [^)]+\)/gi, '');
-                content = content.replace(/\(Topic[^)]+\)/gi, '');
-                
-                // Clean up any double spaces that might result
-                content = content.replace(/\s{2,}/g, ' ');
-                
-                return content;
-            }
             
             // Helper to clean vocab term - remove file references and other artifacts
             // Only removes file reference patterns, not the actual term content
@@ -5961,14 +5962,33 @@ Definition:`;
             // Don't show multiple warnings if already displayed
             if (warningModalDisplayed) return;
             
-            // Check if this warning was already shown (compare timestamp)
-            const lastWarningShown = localStorage.getItem('lastWarningShown');
+            // Get user's first and last name for tracking
+            let firstName = 'Unknown';
+            let lastName = 'User';
+            try {
+                const savedUserData = localStorage.getItem('canvasUserData');
+                if (savedUserData) {
+                    const userData = JSON.parse(savedUserData);
+                    const fullName = userData.name || '';
+                    const nameParts = fullName.trim().split(/\s+/);
+                    if (nameParts.length > 0) {
+                        firstName = nameParts[0];
+                        lastName = nameParts.slice(1).join(' ') || '';
+                    }
+                }
+            } catch (e) {
+                // Use defaults
+            }
+            
+            // Track warning by first and last name + timestamp
+            const warningKey = `${firstName.toLowerCase()}:${lastName.toLowerCase()}:${warning.at}`;
+            const lastWarningShown = localStorage.getItem(`lastWarningShown_${firstName.toLowerCase()}_${lastName.toLowerCase()}`);
             if (lastWarningShown === warning.at) {
-                return; // Already shown this warning
+                return; // Already shown this warning to this user
             }
             
             warningModalDisplayed = true;
-            localStorage.setItem('lastWarningShown', warning.at);
+            localStorage.setItem(`lastWarningShown_${firstName.toLowerCase()}_${lastName.toLowerCase()}`, warning.at);
             
             // Remove any existing warning modal
             const existingWarning = document.getElementById('warningModal');
@@ -6062,14 +6082,35 @@ Definition:`;
         let announcementModalDisplayed = false;
         
         function showAnnouncementModal(announcement) {
-            // Check if we've already shown this announcement
-            const announcementKey = announcement.createdAt || announcement.text;
-            const lastAnnouncementShown = localStorage.getItem('lastAnnouncementShown');
-            if (lastAnnouncementShown === announcementKey || announcementModalDisplayed) {
-                return;
+            // Don't show if already displayed
+            if (announcementModalDisplayed) return;
+            
+            // Get user's first and last name for tracking
+            let firstName = 'Unknown';
+            let lastName = 'User';
+            try {
+                const savedUserData = localStorage.getItem('canvasUserData');
+                if (savedUserData) {
+                    const userData = JSON.parse(savedUserData);
+                    const fullName = userData.name || '';
+                    const nameParts = fullName.trim().split(/\s+/);
+                    if (nameParts.length > 0) {
+                        firstName = nameParts[0];
+                        lastName = nameParts.slice(1).join(' ') || '';
+                    }
+                }
+            } catch (e) {
+                // Use defaults
             }
             
-            localStorage.setItem('lastAnnouncementShown', announcementKey);
+            // Track announcement by first and last name + createdAt
+            const announcementKey = announcement.createdAt || announcement.text;
+            const lastAnnouncementShown = localStorage.getItem(`lastAnnouncementShown_${firstName.toLowerCase()}_${lastName.toLowerCase()}`);
+            if (lastAnnouncementShown === announcementKey) {
+                return; // Already shown this announcement to this user
+            }
+            
+            localStorage.setItem(`lastAnnouncementShown_${firstName.toLowerCase()}_${lastName.toLowerCase()}`, announcementKey);
             announcementModalDisplayed = true;
             
             // Remove existing announcement modal if any
