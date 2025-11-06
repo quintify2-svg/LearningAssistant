@@ -38,14 +38,26 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+            margin: 0;
+            padding: 0;
         }
         
         body {
-            width: 1344px;
-            height: 791px;
+            width: 1344px; /* Base width - your laptop screen */
+            height: 791px; /* Base height - your laptop screen */
             transform-origin: top left;
             position: relative;
-            overflow: hidden;
+            overflow: visible; /* Changed to visible to prevent clipping on scaled content */
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            min-width: 1344px; /* Maintain minimum size */
+            min-height: 791px; /* Maintain minimum size */
+        }
+        
+        /* Ensure all child elements respect box-sizing */
+        body > * {
+            box-sizing: border-box;
         }
         
         /* Loading Screen */
@@ -3221,27 +3233,76 @@
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
             
+            // Prevent scaling on very small screens (mobile) - but allow for laptops
+            const minScreenWidth = 800; // Minimum width for laptops
+            const minScreenHeight = 600; // Minimum height for laptops
+            
+            if (viewportWidth < minScreenWidth || viewportHeight < minScreenHeight) {
+                // For very small screens, just center without scaling
+                const scaleX = Math.max(viewportWidth / baseWidth, 0.5);
+                const scaleY = Math.max(viewportHeight / baseHeight, 0.5);
+                const scale = Math.min(scaleX, scaleY);
+                
+                const scaledWidth = baseWidth * scale;
+                const scaledHeight = baseHeight * scale;
+                const offsetX = (viewportWidth - scaledWidth) / 2;
+                const offsetY = (viewportHeight - scaledHeight) / 2;
+                
+                document.body.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+                document.body.style.transformOrigin = 'top left';
+                return;
+            }
+            
+            // For laptops and desktops, scale proportionally
             // Calculate scale based on the smaller dimension ratio to maintain aspect
             const scaleX = viewportWidth / baseWidth;
             const scaleY = viewportHeight / baseHeight;
             const scale = Math.min(scaleX, scaleY);
             
-            // Apply scale to body
-            document.body.style.transform = `scale(${scale})`;
+            // Don't scale larger than 1.5x to prevent things from getting too big
+            // Don't scale smaller than 0.5x to prevent things from getting too small
+            const clampedScale = Math.max(0.5, Math.min(1.5, scale));
             
             // Center the scaled content
-            const scaledWidth = baseWidth * scale;
-            const scaledHeight = baseHeight * scale;
+            const scaledWidth = baseWidth * clampedScale;
+            const scaledHeight = baseHeight * clampedScale;
             const offsetX = (viewportWidth - scaledWidth) / 2;
             const offsetY = (viewportHeight - scaledHeight) / 2;
             
-            document.body.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+            // Apply transform with proper origin
+            // Use transform3d for better performance and to prevent clipping
+            document.body.style.transform = `translate3d(${offsetX}px, ${offsetY}px, 0) scale(${clampedScale})`;
+            document.body.style.transformOrigin = 'top left';
+            document.body.style.willChange = 'transform'; // Hint for better rendering
+            
+            // Ensure html and body fill the viewport to prevent clipping
+            document.documentElement.style.width = '100%';
+            document.documentElement.style.height = '100%';
+            document.documentElement.style.overflow = 'hidden';
+            document.documentElement.style.position = 'relative';
+            
+            // Ensure body doesn't clip content
+            document.body.style.maxWidth = 'none';
+            document.body.style.maxHeight = 'none';
+        }
+        
+        // Debounce resize for better performance
+        let resizeTimeout;
+        function debouncedScaleSite() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(scaleSite, 100);
         }
         
         // Run on load and resize
         window.addEventListener('load', scaleSite);
-        window.addEventListener('resize', scaleSite);
+        window.addEventListener('resize', debouncedScaleSite);
+        window.addEventListener('orientationchange', scaleSite);
         scaleSite(); // Run immediately
+        
+        // Also scale on initial page visibility
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', scaleSite);
+        }
         
         // Global variables
         let canvasToken = '';
@@ -5989,15 +6050,52 @@ Definition:`;
                 // Use defaults
             }
             
-            // Track warning by first and last name + timestamp
-            const warningKey = `${firstName.toLowerCase()}:${lastName.toLowerCase()}:${warning.at}`;
-            const lastWarningShown = localStorage.getItem(`lastWarningShown_${firstName.toLowerCase()}_${lastName.toLowerCase()}`);
-            if (lastWarningShown === warning.at) {
+            // Track warning by unique ID + first and last name to prevent duplicates
+            // Use warning ID if available, otherwise fall back to timestamp
+            const warningId = warning.id || warning.at || 'unknown';
+            const storageKey = `warnings_shown_${firstName.toLowerCase()}_${lastName.toLowerCase()}`;
+            
+            // Verify the warning is actually for this user (extra safety check)
+            if (warning.userId && warning.firstName && warning.lastName) {
+                const warningFirstName = (warning.firstName || '').toLowerCase();
+                const warningLastName = (warning.lastName || '').toLowerCase();
+                const currentFirstName = firstName.toLowerCase();
+                const currentLastName = lastName.toLowerCase();
+                
+                if (warningFirstName !== currentFirstName || warningLastName !== currentLastName) {
+                    console.log('Warning blocked: User name mismatch', {
+                        warning: `${warningFirstName} ${warningLastName}`,
+                        current: `${currentFirstName} ${currentLastName}`
+                    });
+                    return; // Don't show warning if names don't match
+                }
+            }
+            
+            // Get list of shown warning IDs for this user
+            let shownWarnings = [];
+            try {
+                const shownWarningsStr = localStorage.getItem(storageKey);
+                if (shownWarningsStr) {
+                    shownWarnings = JSON.parse(shownWarningsStr);
+                    // Keep only last 100 warnings to prevent localStorage bloat
+                    if (shownWarnings.length > 100) {
+                        shownWarnings = shownWarnings.slice(-100);
+                    }
+                }
+            } catch (e) {
+                shownWarnings = [];
+            }
+            
+            // Check if this specific warning has already been shown
+            if (shownWarnings.includes(warningId)) {
+                console.log('Warning already shown, skipping:', warningId);
                 return; // Already shown this warning to this user
             }
             
+            // Mark warning as shown
+            shownWarnings.push(warningId);
+            localStorage.setItem(storageKey, JSON.stringify(shownWarnings));
             warningModalDisplayed = true;
-            localStorage.setItem(`lastWarningShown_${firstName.toLowerCase()}_${lastName.toLowerCase()}`, warning.at);
             
             // Remove any existing warning modal
             const existingWarning = document.getElementById('warningModal');
