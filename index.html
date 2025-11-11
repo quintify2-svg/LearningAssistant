@@ -11004,21 +11004,58 @@ Definition:`;
             const isOwnProfile = (userId === currentUserId || userId === currentUserName);
             const profile = getUserProfile(userId);
             
-            // Get user name and date joined from posts
+            // Get user name and date joined from posts AND comments
             let displayName = userId;
             let dateJoined = null;
             const allPosts = [...forumsPosts];
+            
+            // Check posts
             const userPosts = allPosts.filter(p => (p.authorId || p.authorName) === userId);
             
-            if (userPosts.length > 0) {
-                // Get name from first post
-                displayName = userPosts[0].authorName;
-                
-                // Find earliest post date (date joined)
-                const dates = userPosts.map(p => new Date(p.date)).filter(d => !isNaN(d.getTime()));
-                if (dates.length > 0) {
-                    dateJoined = new Date(Math.min(...dates.map(d => d.getTime())));
+            // Check comments in all posts
+            const userComments = [];
+            allPosts.forEach(post => {
+                if (post.comments && Array.isArray(post.comments)) {
+                    post.comments.forEach(comment => {
+                        if ((comment.authorId || comment.authorName) === userId) {
+                            userComments.push(comment);
+                        }
+                    });
                 }
+            });
+            
+            // Get name from posts first, then comments
+            if (userPosts.length > 0) {
+                displayName = userPosts[0].authorName;
+            } else if (userComments.length > 0) {
+                displayName = userComments[0].authorName;
+            }
+            
+            // Find earliest date from posts AND comments
+            const allDates = [];
+            
+            // Add post dates
+            userPosts.forEach(post => {
+                if (post.date) {
+                    const date = new Date(post.date);
+                    if (!isNaN(date.getTime())) {
+                        allDates.push(date.getTime());
+                    }
+                }
+            });
+            
+            // Add comment dates
+            userComments.forEach(comment => {
+                if (comment.date) {
+                    const date = new Date(comment.date);
+                    if (!isNaN(date.getTime())) {
+                        allDates.push(date.getTime());
+                    }
+                }
+            });
+            
+            if (allDates.length > 0) {
+                dateJoined = new Date(Math.min(...allDates));
             }
             
             profilePanelTitle.textContent = isOwnProfile ? 'My Profile' : `${displayName}'s Profile`;
@@ -11231,6 +11268,47 @@ Definition:`;
         
         // Initialize profile system
         loadUserProfiles();
+        
+        // Set up event delegation for profile clicks (works for dynamically created elements)
+        document.addEventListener('click', function(e) {
+            // Only handle if the click is on a profile-related element
+            let target = e.target;
+            let userId = null;
+            
+            // Check if clicked element or its parent has data-user-id attribute
+            const profileElement = target.closest && target.closest('[data-user-id]');
+            if (profileElement) {
+                userId = profileElement.getAttribute('data-user-id');
+            }
+            
+            // Also check if target itself has the attribute
+            if (!userId && target.hasAttribute && target.hasAttribute('data-user-id')) {
+                userId = target.getAttribute('data-user-id');
+            }
+            
+            if (userId) {
+                // Only prevent default if it's actually a profile click (not a button inside)
+                const isProfileClick = target.classList.contains('forums-post-avatar') || 
+                                      target.classList.contains('forums-post-author-name') ||
+                                      target.classList.contains('forums-comment-avatar') ||
+                                      target.classList.contains('forums-comment-author') ||
+                                      target.closest('.forums-post-avatar') ||
+                                      target.closest('.forums-post-author-name') ||
+                                      target.closest('.forums-comment-avatar') ||
+                                      target.closest('.forums-comment-author');
+                
+                if (isProfileClick) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Profile clicked via delegation:', userId);
+                    if (window.openUserProfile) {
+                        window.openUserProfile(userId);
+                    } else {
+                        console.error('openUserProfile function not found');
+                    }
+                }
+            }
+        });
         
         // Forums refresh button
         const forumsRefreshBtn = document.getElementById('forumsRefreshBtn');
