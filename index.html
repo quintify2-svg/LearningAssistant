@@ -11000,50 +11000,87 @@ Definition:`;
             const isOwnProfile = (userId === currentUserId || userId === currentUserName);
             const profile = getUserProfile(userId);
             
-            // Get user name from posts if available
+            // Get user name and date joined from posts
             let displayName = userId;
+            let dateJoined = null;
             const allPosts = [...forumsPosts];
-            const userPost = allPosts.find(p => (p.authorId || p.authorName) === userId);
-            if (userPost) {
-                displayName = userPost.authorName;
+            const userPosts = allPosts.filter(p => (p.authorId || p.authorName) === userId);
+            
+            if (userPosts.length > 0) {
+                // Get name from first post
+                displayName = userPosts[0].authorName;
+                
+                // Find earliest post date (date joined)
+                const dates = userPosts.map(p => new Date(p.date)).filter(d => !isNaN(d.getTime()));
+                if (dates.length > 0) {
+                    dateJoined = new Date(Math.min(...dates.map(d => d.getTime())));
+                }
             }
             
             profilePanelTitle.textContent = isOwnProfile ? 'My Profile' : `${displayName}'s Profile`;
             
+            // Format date joined
+            let dateJoinedText = 'Unknown';
+            if (dateJoined) {
+                dateJoinedText = dateJoined.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+            
             let html = `
-                <div class="forums-profile-avatar-section">
-                    <div class="forums-profile-avatar-display" style="font-size: 4rem;">${profile.avatar}</div>
+                <div style="padding: 2rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <!-- Profile Picture at Top -->
+                    <div class="forums-profile-avatar-display" style="font-size: 6rem; margin: 0 auto 1.5rem; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.1); border: 3px solid rgba(255,255,255,0.2);">${profile.avatar}</div>
+                    
+                    <!-- Name -->
+                    <h3 style="margin: 0 0 0.5rem 0; color: white; font-size: 1.5rem; font-weight: 600;">${escapeHtml(displayName)}</h3>
+                    
+                    <!-- Date Joined -->
+                    <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                        <span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 0.25rem;">calendar_today</span>
+                        Joined ${dateJoinedText}
+                    </div>
+                </div>
+                
+                <div style="padding: 1.5rem;">
                     ${isOwnProfile ? `
-                        <label style="display: block; color: rgba(255,255,255,0.9); margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500;">Choose Avatar</label>
-                        <input type="text" id="forumsAvatarSearch" class="forums-profile-avatar-search" placeholder="Search emojis..." style="width: 100%; padding: 0.75rem; border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.3); color: white; font-size: 0.9rem; margin-bottom: 1rem; outline: none; transition: all 0.3s ease;" oninput="filterAvatars(this.value)">
-                        <div class="forums-profile-avatar-selector" id="forumsAvatarSelector">
-                            ${avatarOptions.map((avatar, index) => `
-                                <div class="forums-profile-avatar-option ${profile.avatar === avatar ? 'selected' : ''}" 
-                                     data-avatar="${avatar}" 
-                                     data-search="${avatar}"
-                                     onclick="selectAvatar('${avatar}')">
-                                    ${avatar}
-                                </div>
-                            `).join('')}
+                        <div class="forums-profile-avatar-section" style="margin-bottom: 2rem;">
+                            <label style="display: block; color: rgba(255,255,255,0.9); margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500;">Choose Avatar</label>
+                            <input type="text" id="forumsAvatarSearch" class="forums-profile-avatar-search" placeholder="Search emojis..." style="width: 100%; padding: 0.75rem; border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.3); color: white; font-size: 0.9rem; margin-bottom: 1rem; outline: none; transition: all 0.3s ease;" oninput="filterAvatars(this.value)">
+                            <div class="forums-profile-avatar-selector" id="forumsAvatarSelector">
+                                ${avatarOptions.map((avatar, index) => `
+                                    <div class="forums-profile-avatar-option ${profile.avatar === avatar ? 'selected' : ''}" 
+                                         data-avatar="${avatar}" 
+                                         data-search="${avatar}"
+                                         onclick="selectAvatar('${avatar}')">
+                                        ${avatar}
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
                     ` : ''}
-                </div>
-                <div class="forums-profile-bio-section">
-                    <label style="display: block; color: rgba(255,255,255,0.9); margin-bottom: 0.5rem; font-size: 0.9rem;">Bio</label>
-                    ${isOwnProfile ? `
-                        <textarea class="forums-profile-bio-textarea" id="forumsProfileBio" placeholder="Tell us about yourself..." maxlength="500">${escapeHtml(profile.bio || '')}</textarea>
-                        <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-top: 0.25rem; text-align: right;">
-                            <span id="forumsProfileBioCount">${(profile.bio || '').length}</span>/500
-                        </div>
-                    ` : `
-                        <div class="forums-profile-view-only" style="padding: 0.75rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.05); min-height: 100px; white-space: pre-wrap;">${profile.bio || 'No bio yet.'}</div>
-                    `}
+                    
+                    <div class="forums-profile-bio-section">
+                        <label style="display: block; color: rgba(255,255,255,0.9); margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500;">Bio</label>
+                        ${isOwnProfile ? `
+                            <textarea class="forums-profile-bio-textarea" id="forumsProfileBio" placeholder="Tell us about yourself..." maxlength="500" style="width: 100%; padding: 0.75rem; border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.3); color: white; font-size: 0.9rem; min-height: 120px; resize: vertical; outline: none; font-family: inherit;">${escapeHtml(profile.bio || '')}</textarea>
+                            <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-top: 0.25rem; text-align: right;">
+                                <span id="forumsProfileBioCount">${(profile.bio || '').length}</span>/500
+                            </div>
+                        ` : `
+                            <div class="forums-profile-view-only" style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.05); min-height: 100px; white-space: pre-wrap; color: rgba(255,255,255,0.9); line-height: 1.6;">${profile.bio || 'No bio yet.'}</div>
+                        `}
+                    </div>
                 </div>
             `;
             
             if (isOwnProfile) {
                 html += `
-                    <button class="forums-profile-save-btn" id="forumsProfileSaveBtn" onclick="saveUserProfile()">Save Profile</button>
+                    <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <button class="forums-profile-save-btn" id="forumsProfileSaveBtn" onclick="saveUserProfile()" style="width: 100%; padding: 0.75rem; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; border-radius: 8px; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Save Profile</button>
+                    </div>
                 `;
             }
             
