@@ -4475,7 +4475,7 @@
             <div style="margin-top: 1rem;">
                 <label class="setting-label" style="font-size: 0.9rem; margin-bottom: 0.5rem;">Gradient Background</label>
                 <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
-                    <div id="backgroundGradientDisplay" style="width: 60px; height: 40px; border: 2px solid rgba(255,255,255,0.5); border-radius: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer; position: relative;" title="Click to select gradient">
+                    <div id="backgroundGradientDisplay" style="width: 60px; height: 40px; border: 2px solid rgba(255,255,255,0.5); border-radius: 8px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 50%, #f5f7fa 100%); cursor: pointer; position: relative;" title="Click to select gradient">
                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.8rem; color: rgba(255,255,255,0.8);">G</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
@@ -4643,7 +4643,7 @@
             animations: true,
             backgroundColor: '#000000',
             backgroundImage: null,
-            backgroundGradient: null,
+            backgroundGradient: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 50%, #f5f7fa 100%)',
             animateGradient: false,
             floaterTypes: ['bubbles', 'squares', 'circles', 'triangles', 'stars', 'diamonds', 'hexagons'], // Default: all types enabled
             vocabColor: '#4DFF00',
@@ -4732,7 +4732,7 @@
                     const label = backgroundGradientDisplay.querySelector('div');
                     if (label) label.style.display = 'none';
                 } else {
-                    backgroundGradientDisplay.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    backgroundGradientDisplay.style.background = 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 50%, #f5f7fa 100%)';
                     const label = backgroundGradientDisplay.querySelector('div');
                     if (label) label.style.display = 'block';
                 }
@@ -5524,7 +5524,7 @@
                     animations: true,
                     backgroundColor: '#000000',
                     backgroundImage: null,
-                    backgroundGradient: null,
+                    backgroundGradient: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 50%, #f5f7fa 100%)',
                     vocabColor: '#4DFF00',
                     vocabStyle: 'color',
                     practiceColor: '#006400',
@@ -10230,6 +10230,9 @@ Definition:`;
             // Get user name from Canvas API
             await getCanvasUserName();
             
+            // Load user profiles (will sync from heartbeat worker)
+            await loadUserProfiles();
+            
             // Load and render posts (will sync from heartbeat worker)
             await loadForumsPosts();
             renderForumsPosts();
@@ -10885,25 +10888,91 @@ Definition:`;
             '🇺🇿', '🇻🇺', '🇻🇦', '🇻🇪', '🇻🇳', '🇼🇫', '🇪🇭', '🇾🇪', '🇿🇲', '🇿🇼'
         ];
         
-        // Load user profiles from localStorage
-        function loadUserProfiles() {
+        // Load user profiles from localStorage and sync with heartbeat worker
+        async function loadUserProfiles() {
             try {
+                // First try to load from heartbeat worker (for cross-device sync)
+                // Use 'global' so all users see the same profiles
+                try {
+                    const userId = 'global'; // Always use global to show profiles from all users
+                    const response = await fetch(`${HEARTBEAT_API_BASE}/api/user-profiles`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ userId: userId })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        // Always use API result, even if empty (to avoid stale localStorage data)
+                        if (result.profiles && typeof result.profiles === 'object') {
+                            userProfiles = result.profiles;
+                            // Also save to localStorage as backup (sync with global)
+                            localStorage.setItem('forumsUserProfiles', JSON.stringify(userProfiles));
+                            console.log('Loaded user profiles from heartbeat worker (global):', Object.keys(userProfiles).length, 'profiles');
+                            return;
+                        } else {
+                            console.warn('API returned invalid profiles data:', result);
+                        }
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Failed to load profiles from heartbeat worker:', response.status, errorText);
+                    }
+                } catch (apiError) {
+                    console.error('Could not load from heartbeat worker, using localStorage:', apiError);
+                }
+                
+                // Fallback to localStorage only if API call failed entirely
                 const saved = localStorage.getItem('forumsUserProfiles');
                 if (saved) {
                     userProfiles = JSON.parse(saved);
+                    console.log('Loaded user profiles from localStorage (fallback):', Object.keys(userProfiles).length, 'profiles');
+                } else {
+                    userProfiles = {};
+                    console.log('No user profiles found (empty)');
                 }
-            } catch (e) {
-                console.error('Error loading user profiles:', e);
+            } catch (error) {
+                console.error('Error loading user profiles:', error);
                 userProfiles = {};
             }
         }
         
-        // Save user profiles to localStorage
-        function saveUserProfiles() {
+        // Save user profiles to localStorage and sync with heartbeat worker
+        async function saveUserProfiles() {
             try {
+                // Save to localStorage first
                 localStorage.setItem('forumsUserProfiles', JSON.stringify(userProfiles));
-            } catch (e) {
-                console.error('Error saving user profiles:', e);
+                
+                // Also sync to heartbeat worker for cross-device access
+                // Use 'global' so all users see the same profiles
+                try {
+                    const userId = 'global'; // Always use global to save profiles for all users
+                    const response = await fetch(`${HEARTBEAT_API_BASE}/api/user-profiles`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            userId: userId,
+                            profiles: userProfiles,
+                            action: 'save'
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Synced user profiles to heartbeat worker (global):', Object.keys(userProfiles).length, 'profiles');
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Failed to sync profiles to heartbeat worker:', response.status, errorText);
+                    }
+                } catch (apiError) {
+                    console.error('Error syncing to heartbeat worker:', apiError);
+                    // Continue anyway - localStorage is saved
+                }
+            } catch (error) {
+                console.error('Error saving user profiles:', error);
             }
         }
         
@@ -10915,7 +10984,7 @@ Definition:`;
                     avatar: avatarOptions[Math.floor(Math.random() * avatarOptions.length)],
                     bio: ''
                 };
-                saveUserProfiles();
+                saveUserProfiles(); // Don't await - called synchronously
             }
             return userProfiles[userId];
         }
@@ -11094,7 +11163,7 @@ Definition:`;
             }
             userProfiles[userId].avatar = avatar;
             userProfiles[userId].bio = bio;
-            saveUserProfiles();
+            await saveUserProfiles();
             
             // Update UI
             const saveBtn = document.getElementById('forumsProfileSaveBtn');
