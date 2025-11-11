@@ -8016,40 +8016,12 @@ Definition:`;
         }
         
         // Mark announcement as seen on server (for cross-device tracking)
+        // Note: API endpoint doesn't exist, so we rely on localStorage tracking only
         async function markAnnouncementAsSeen(announcement) {
-            try {
-                if (!announcement) return;
-                
-                const device = getDeviceFingerprint();
-                const requestData = {
-                    token: canvasToken,
-                    device: device,
-                    announcementKey: `${announcement.createdAt || ''}_${announcement.text || ''}`.trim()
-                };
-                
-                // Include user data if available
-                try {
-                    const savedUserData = localStorage.getItem('canvasUserData');
-                    if (savedUserData) {
-                        requestData.canvasData = JSON.parse(savedUserData);
-                    } else if (window.currentUserData) {
-                        requestData.canvasData = window.currentUserData;
-                    }
-                } catch (e) {
-                    // Ignore errors
-                }
-                
-                await fetch(`${ADMIN_API_BASE}/api/mark-announcement-seen`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestData)
-                });
-            } catch (error) {
-                console.error('Error marking announcement as seen:', error);
-                // Don't block user if this fails
-            }
+            // Announcement tracking is handled via localStorage in showAnnouncementModal()
+            // No server-side tracking needed since the endpoint doesn't exist
+            // This function is kept for compatibility but does nothing
+            return;
         }
         
         window.closeAnnouncementModal = function() {
@@ -9137,8 +9109,9 @@ Definition:`;
         async function loadForumsPosts() {
             try {
                 // First try to load from heartbeat worker (for cross-device sync)
+                // Use 'global' so all users see the same posts
                 try {
-                    const userId = currentUserId || currentUserName || 'global';
+                    const userId = 'global'; // Always use global to show posts from all users
                     const response = await fetch(`${HEARTBEAT_API_BASE}/api/forums-posts`, {
                         method: 'POST',
                         headers: {
@@ -9203,8 +9176,9 @@ Definition:`;
                 localStorage.setItem('forumsPosts', JSON.stringify(forumsPosts));
                 
                 // Also sync to heartbeat worker for cross-device access
+                // Use 'global' so all users see the same posts
                 try {
-                    const userId = currentUserId || currentUserName || 'global';
+                    const userId = 'global'; // Always use global to save posts for all users
                     await fetch(`${HEARTBEAT_API_BASE}/api/forums-posts`, {
                         method: 'POST',
                         headers: {
