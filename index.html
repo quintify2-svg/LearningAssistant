@@ -9322,8 +9322,8 @@ Definition:`;
                         return `
                             <div class="forums-comment-card">
                                 <div class="forums-comment-header">
-                                    <div class="forums-comment-avatar" style="cursor: pointer;" onclick="openUserProfile('${comment.authorId || comment.authorName}')" title="View profile">${commentInitials}</div>
-                                    <div class="forums-comment-author" style="cursor: pointer;" onclick="openUserProfile('${comment.authorId || comment.authorName}')" title="View profile">
+                                    <div class="forums-comment-avatar" style="cursor: pointer;" data-user-id="${(comment.authorId || comment.authorName).replace(/"/g, '&quot;')}" onclick="openUserProfile(this.getAttribute('data-user-id'))" title="View profile">${commentInitials}</div>
+                                    <div class="forums-comment-author" style="cursor: pointer;" data-user-id="${(comment.authorId || comment.authorName).replace(/"/g, '&quot;')}" onclick="openUserProfile(this.getAttribute('data-user-id'))" title="View profile">
                                         ${escapeHtml(comment.authorName)}
                                         ${comment.replyTo ? `<span class="forums-comment-reply-to">→ ${escapeHtml(comment.replyTo)}</span>` : ''}
                                     </div>
@@ -9399,9 +9399,9 @@ Definition:`;
                 return `
                     <div class="forums-post-card" data-post-id="${post.id}">
                         <div class="forums-post-header">
-                            <div class="forums-post-avatar" style="cursor: pointer;" onclick="openUserProfile('${post.authorId || post.authorName}')" title="View profile">${authorInitials}</div>
+                            <div class="forums-post-avatar" style="cursor: pointer;" data-user-id="${(post.authorId || post.authorName).replace(/"/g, '&quot;')}" onclick="openUserProfile(this.getAttribute('data-user-id'))" title="View profile">${authorInitials}</div>
                             <div class="forums-post-author-info">
-                                <div class="forums-post-author-name" style="cursor: pointer;" onclick="openUserProfile('${post.authorId || post.authorName}')" title="View profile">${escapeHtml(post.authorName)}</div>
+                                <div class="forums-post-author-name" style="cursor: pointer;" data-user-id="${(post.authorId || post.authorName).replace(/"/g, '&quot;')}" onclick="openUserProfile(this.getAttribute('data-user-id'))" title="View profile">${escapeHtml(post.authorName)}</div>
                                 <div class="forums-post-date">${formattedDate}</div>
                             </div>
                             ${isOwner ? `
@@ -10989,13 +10989,17 @@ Definition:`;
             return userProfiles[userId];
         }
         
-        // Open user profile panel
-        function openUserProfile(userId) {
+        // Open user profile panel - make it globally accessible
+        window.openUserProfile = function(userId) {
+            console.log('Opening profile for:', userId);
             const profilePanel = document.getElementById('forumsProfilePanel');
             const profilePanelContent = document.getElementById('forumsProfilePanelContent');
             const profilePanelTitle = document.getElementById('forumsProfilePanelTitle');
             
-            if (!profilePanel || !profilePanelContent) return;
+            if (!profilePanel || !profilePanelContent) {
+                console.error('Profile panel elements not found');
+                return;
+            }
             
             const isOwnProfile = (userId === currentUserId || userId === currentUserName);
             const profile = getUserProfile(userId);
@@ -11097,7 +11101,7 @@ Definition:`;
                     });
                 }
             }
-        }
+        };
         
         // Filter avatars by search
         function filterAvatars(searchTerm) {
