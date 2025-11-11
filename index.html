@@ -3094,7 +3094,7 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 0.75rem;
             margin-top: 1rem;
-            max-height: 400px;
+            max-height: 200px;
             overflow-y: auto;
             padding: 0.5rem;
         }
@@ -9151,6 +9151,15 @@ Definition:`;
                         const result = await response.json();
                         if (result.posts && Array.isArray(result.posts) && result.posts.length > 0) {
                             forumsPosts = result.posts;
+                            // Initialize likedBy arrays for backward compatibility
+                            forumsPosts.forEach(post => {
+                                if (!post.likedBy) post.likedBy = [];
+                                if (post.comments) {
+                                    post.comments.forEach(comment => {
+                                        if (!comment.likedBy) comment.likedBy = [];
+                                    });
+                                }
+                            });
                             // Sort by date (newest first)
                             forumsPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
                             // Also save to localStorage as backup
@@ -9167,6 +9176,15 @@ Definition:`;
                 const saved = localStorage.getItem('forumsPosts');
                 if (saved) {
                     forumsPosts = JSON.parse(saved);
+                    // Initialize likedBy arrays for backward compatibility
+                    forumsPosts.forEach(post => {
+                        if (!post.likedBy) post.likedBy = [];
+                        if (post.comments) {
+                            post.comments.forEach(comment => {
+                                if (!comment.likedBy) comment.likedBy = [];
+                            });
+                        }
+                    });
                     // Sort by date (newest first)
                     forumsPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
                 } else {
@@ -9210,24 +9228,82 @@ Definition:`;
         
         // Check if user liked a post/comment
         function isLiked(itemId, itemType = 'post') {
-            const key = `forums_${itemType}_likes_${itemId}`;
-            return localStorage.getItem(key) === 'true';
+            const userId = currentUserId || currentUserName;
+            if (!userId) return false;
+            
+            if (itemType === 'post') {
+                const post = forumsPosts.find(p => p.id === itemId);
+                if (!post) return false;
+                if (!post.likedBy) post.likedBy = [];
+                return post.likedBy.includes(userId);
+            } else if (itemType === 'comment') {
+                // Find the comment in any post
+                for (const post of forumsPosts) {
+                    const comment = post.comments?.find(c => c.id === itemId);
+                    if (comment) {
+                        if (!comment.likedBy) comment.likedBy = [];
+                        return comment.likedBy.includes(userId);
+                    }
+                }
+            }
+            return false;
         }
         
         // Toggle like on post/comment
-        function toggleLike(itemId, itemType = 'post') {
-            const key = `forums_${itemType}_likes_${itemId}`;
-            const isCurrentlyLiked = isLiked(itemId, itemType);
-            localStorage.setItem(key, (!isCurrentlyLiked).toString());
-            return !isCurrentlyLiked;
+        async function toggleLike(itemId, itemType = 'post') {
+            const userId = currentUserId || currentUserName;
+            if (!userId) return false;
+            
+            if (itemType === 'post') {
+                const post = forumsPosts.find(p => p.id === itemId);
+                if (!post) return false;
+                if (!post.likedBy) post.likedBy = [];
+                const isCurrentlyLiked = post.likedBy.includes(userId);
+                if (isCurrentlyLiked) {
+                    post.likedBy = post.likedBy.filter(id => id !== userId);
+                } else {
+                    post.likedBy.push(userId);
+                }
+                await saveForumsPosts();
+                return !isCurrentlyLiked;
+            } else if (itemType === 'comment') {
+                // Find the comment in any post
+                for (const post of forumsPosts) {
+                    const comment = post.comments?.find(c => c.id === itemId);
+                    if (comment) {
+                        if (!comment.likedBy) comment.likedBy = [];
+                        const isCurrentlyLiked = comment.likedBy.includes(userId);
+                        if (isCurrentlyLiked) {
+                            comment.likedBy = comment.likedBy.filter(id => id !== userId);
+                        } else {
+                            comment.likedBy.push(userId);
+                        }
+                        await saveForumsPosts();
+                        return !isCurrentlyLiked;
+                    }
+                }
+            }
+            return false;
         }
         
         // Get like count for post/comment
         function getLikeCount(itemId, itemType = 'post') {
-            // For now, we'll use localStorage to track likes
-            // In a real app, this would come from a backend
-            const key = `forums_${itemType}_likes_${itemId}`;
-            return localStorage.getItem(key) === 'true' ? 1 : 0;
+            if (itemType === 'post') {
+                const post = forumsPosts.find(p => p.id === itemId);
+                if (!post) return 0;
+                if (!post.likedBy) post.likedBy = [];
+                return post.likedBy.length;
+            } else if (itemType === 'comment') {
+                // Find the comment in any post
+                for (const post of forumsPosts) {
+                    const comment = post.comments?.find(c => c.id === itemId);
+                    if (comment) {
+                        if (!comment.likedBy) comment.likedBy = [];
+                        return comment.likedBy.length;
+                    }
+                }
+            }
+            return 0;
         }
         
         // Render comments for a post (showing first 10)
@@ -9862,7 +9938,8 @@ Definition:`;
                 date: new Date().toISOString(),
                 comments: [],
                 commentsVisible: false,
-                reported: false
+                reported: false,
+                likedBy: []
             };
             
             forumsPosts.unshift(newPost); // Add to beginning
@@ -9887,16 +9964,16 @@ Definition:`;
         }
         
         // Handle post like
-        function handlePostLike(postId) {
-            toggleLike(postId, 'post');
+        async function handlePostLike(postId) {
+            await toggleLike(postId, 'post');
             const searchInput = document.getElementById('forumsSearchInput');
             const searchQuery = searchInput ? searchInput.value : '';
             renderForumsPosts(searchQuery);
         }
         
         // Handle comment like
-        function handleCommentLike(postId, commentId) {
-            toggleLike(commentId, 'comment');
+        async function handleCommentLike(postId, commentId) {
+            await toggleLike(commentId, 'comment');
             const post = forumsPosts.find(p => p.id === postId);
             if (post && post.commentsVisible) {
                 const searchInput = document.getElementById('forumsSearchInput');
@@ -10013,7 +10090,8 @@ Definition:`;
                 date: new Date().toISOString(),
                 replyTo: replyToAuthorName || null,
                 replyToId: replyToId || null,
-                reported: false
+                reported: false,
+                likedBy: []
             };
             
             post.comments.push(newComment);
