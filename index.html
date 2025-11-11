@@ -1780,6 +1780,7 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             border-radius: 20px;
             padding: 2rem;
+            -webkit-user-select: none;
             user-select: none;
             font-size: var(--note-font-size);
         }
@@ -2406,6 +2407,7 @@
         @media (max-width: 768px) {
             html {
                 -webkit-text-size-adjust: 100%;
+                -moz-text-size-adjust: 100%;
                 text-size-adjust: 100%;
             }
         }
@@ -3012,17 +3014,19 @@
             width: 450px;
             height: 100vh;
             background: rgba(20, 20, 30, 0.98);
-            backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
             border-left: 2px solid rgba(255, 255, 255, 0.1);
             z-index: 10000;
             transition: right 0.3s ease;
             overflow-y: auto;
             box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+            display: block;
+            visibility: visible;
         }
         
         .forums-profile-panel.open {
-            right: 0;
+            right: 0 !important;
         }
         
         .forums-profile-panel-header {
@@ -10990,16 +10994,29 @@ Definition:`;
         }
         
         // Open user profile panel - make it globally accessible
+        let isOpeningProfile = false; // Prevent multiple simultaneous opens
         window.openUserProfile = function(userId) {
+            // Prevent multiple simultaneous calls
+            if (isOpeningProfile) {
+                console.log('Profile already opening, skipping...');
+                return;
+            }
+            
             console.log('Opening profile for:', userId);
             const profilePanel = document.getElementById('forumsProfilePanel');
             const profilePanelContent = document.getElementById('forumsProfilePanelContent');
             const profilePanelTitle = document.getElementById('forumsProfilePanelTitle');
             
             if (!profilePanel || !profilePanelContent) {
-                console.error('Profile panel elements not found');
+                console.error('Profile panel elements not found', {
+                    panel: !!profilePanel,
+                    content: !!profilePanelContent,
+                    title: !!profilePanelTitle
+                });
                 return;
             }
+            
+            isOpeningProfile = true;
             
             const isOwnProfile = (userId === currentUserId || userId === currentUserName);
             const profile = getUserProfile(userId);
@@ -11126,7 +11143,22 @@ Definition:`;
             }
             
             profilePanelContent.innerHTML = html;
+            
+            // Force the panel to show
+            profilePanel.style.display = 'block';
+            profilePanel.style.visibility = 'visible';
             profilePanel.classList.add('open');
+            
+            // Double-check it's visible
+            setTimeout(() => {
+                if (!profilePanel.classList.contains('open')) {
+                    profilePanel.classList.add('open');
+                }
+                console.log('Profile panel should be open now', {
+                    hasOpenClass: profilePanel.classList.contains('open'),
+                    computedRight: window.getComputedStyle(profilePanel).right
+                });
+            }, 100);
             
             // Add bio character counter
             if (isOwnProfile) {
@@ -11138,6 +11170,8 @@ Definition:`;
                     });
                 }
             }
+            
+            isOpeningProfile = false;
         };
         
         // Filter avatars by search
@@ -11270,45 +11304,50 @@ Definition:`;
         loadUserProfiles();
         
         // Set up event delegation for profile clicks (works for dynamically created elements)
-        document.addEventListener('click', function(e) {
-            // Only handle if the click is on a profile-related element
-            let target = e.target;
-            let userId = null;
-            
-            // Check if clicked element or its parent has data-user-id attribute
-            const profileElement = target.closest && target.closest('[data-user-id]');
-            if (profileElement) {
-                userId = profileElement.getAttribute('data-user-id');
-            }
-            
-            // Also check if target itself has the attribute
-            if (!userId && target.hasAttribute && target.hasAttribute('data-user-id')) {
-                userId = target.getAttribute('data-user-id');
-            }
-            
-            if (userId) {
-                // Only prevent default if it's actually a profile click (not a button inside)
-                const isProfileClick = target.classList.contains('forums-post-avatar') || 
-                                      target.classList.contains('forums-post-author-name') ||
-                                      target.classList.contains('forums-comment-avatar') ||
-                                      target.classList.contains('forums-comment-author') ||
-                                      target.closest('.forums-post-avatar') ||
-                                      target.closest('.forums-post-author-name') ||
-                                      target.closest('.forums-comment-avatar') ||
-                                      target.closest('.forums-comment-author');
+        // Use a single event listener on the forums content area to avoid multiple triggers
+        const forumsContent = document.getElementById('forumsContent');
+        if (forumsContent) {
+            forumsContent.addEventListener('click', function(e) {
+                // Only handle if the click is on a profile-related element
+                let target = e.target;
+                let userId = null;
                 
-                if (isProfileClick) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Profile clicked via delegation:', userId);
-                    if (window.openUserProfile) {
-                        window.openUserProfile(userId);
-                    } else {
-                        console.error('openUserProfile function not found');
+                // Check if clicked element or its parent has data-user-id attribute
+                const profileElement = target.closest && target.closest('[data-user-id]');
+                if (profileElement) {
+                    userId = profileElement.getAttribute('data-user-id');
+                }
+                
+                // Also check if target itself has the attribute
+                if (!userId && target.hasAttribute && target.hasAttribute('data-user-id')) {
+                    userId = target.getAttribute('data-user-id');
+                }
+                
+                if (userId) {
+                    // Only prevent default if it's actually a profile click (not a button inside)
+                    const isProfileClick = target.classList.contains('forums-post-avatar') || 
+                                          target.classList.contains('forums-post-author-name') ||
+                                          target.classList.contains('forums-comment-avatar') ||
+                                          target.classList.contains('forums-comment-author') ||
+                                          target.closest('.forums-post-avatar') ||
+                                          target.closest('.forums-post-author-name') ||
+                                          target.closest('.forums-comment-avatar') ||
+                                          target.closest('.forums-comment-author');
+                    
+                    if (isProfileClick) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Profile clicked via delegation:', userId);
+                        if (window.openUserProfile) {
+                            window.openUserProfile(userId);
+                        } else {
+                            console.error('openUserProfile function not found');
+                        }
+                        return false;
                     }
                 }
-            }
-        });
+            });
+        }
         
         // Forums refresh button
         const forumsRefreshBtn = document.getElementById('forumsRefreshBtn');
