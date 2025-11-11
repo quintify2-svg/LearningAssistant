@@ -9122,7 +9122,8 @@ Definition:`;
                     
                     if (response.ok) {
                         const result = await response.json();
-                        if (result.posts && Array.isArray(result.posts) && result.posts.length > 0) {
+                        // Always use API result, even if empty (to avoid stale localStorage data)
+                        if (result.posts && Array.isArray(result.posts)) {
                             forumsPosts = result.posts;
                             // Initialize likedBy arrays for backward compatibility
                             forumsPosts.forEach(post => {
@@ -9135,17 +9136,22 @@ Definition:`;
                             });
                             // Sort by date (newest first)
                             forumsPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-                            // Also save to localStorage as backup
+                            // Also save to localStorage as backup (sync with global)
                             localStorage.setItem('forumsPosts', JSON.stringify(forumsPosts));
-                            console.log('Loaded forums posts from heartbeat worker:', forumsPosts.length);
+                            console.log('Loaded forums posts from heartbeat worker (global):', forumsPosts.length, 'posts');
                             return;
+                        } else {
+                            console.warn('API returned invalid posts data:', result);
                         }
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Failed to load posts from heartbeat worker:', response.status, errorText);
                     }
                 } catch (apiError) {
-                    console.log('Could not load from heartbeat worker, using localStorage:', apiError);
+                    console.error('Could not load from heartbeat worker, using localStorage:', apiError);
                 }
                 
-                // Fallback to localStorage
+                // Fallback to localStorage only if API call failed entirely
                 const saved = localStorage.getItem('forumsPosts');
                 if (saved) {
                     forumsPosts = JSON.parse(saved);
@@ -9160,8 +9166,10 @@ Definition:`;
                     });
                     // Sort by date (newest first)
                     forumsPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    console.log('Loaded forums posts from localStorage (fallback):', forumsPosts.length, 'posts');
                 } else {
                     forumsPosts = [];
+                    console.log('No forums posts found (empty)');
                 }
             } catch (error) {
                 console.error('Error loading forums posts:', error);
@@ -9179,7 +9187,7 @@ Definition:`;
                 // Use 'global' so all users see the same posts
                 try {
                     const userId = 'global'; // Always use global to save posts for all users
-                    await fetch(`${HEARTBEAT_API_BASE}/api/forums-posts`, {
+                    const response = await fetch(`${HEARTBEAT_API_BASE}/api/forums-posts`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -9190,9 +9198,16 @@ Definition:`;
                             action: 'save'
                         })
                     });
-                    console.log('Synced forums posts to heartbeat worker');
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Synced forums posts to heartbeat worker (global):', forumsPosts.length, 'posts');
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Failed to sync posts to heartbeat worker:', response.status, errorText);
+                    }
                 } catch (apiError) {
-                    console.log('Could not sync to heartbeat worker:', apiError);
+                    console.error('Error syncing to heartbeat worker:', apiError);
                     // Continue anyway - localStorage is saved
                 }
             } catch (error) {
@@ -11110,11 +11125,26 @@ Definition:`;
         // Forums refresh button
         const forumsRefreshBtn = document.getElementById('forumsRefreshBtn');
         if (forumsRefreshBtn) {
-            forumsRefreshBtn.addEventListener('click', () => {
-                loadForumsPosts();
-                const searchInput = document.getElementById('forumsSearchInput');
-                const searchQuery = searchInput ? searchInput.value : '';
-                renderForumsPosts(searchQuery);
+            let isRefreshing = false; // Prevent multiple simultaneous refreshes
+            forumsRefreshBtn.addEventListener('click', async () => {
+                if (isRefreshing) return; // Already refreshing, ignore
+                isRefreshing = true;
+                try {
+                    // Disable button during refresh
+                    forumsRefreshBtn.disabled = true;
+                    forumsRefreshBtn.style.opacity = '0.5';
+                    
+                    // Wait for posts to load before rendering
+                    await loadForumsPosts();
+                    const searchInput = document.getElementById('forumsSearchInput');
+                    const searchQuery = searchInput ? searchInput.value : '';
+                    renderForumsPosts(searchQuery);
+                } finally {
+                    // Re-enable button
+                    isRefreshing = false;
+                    forumsRefreshBtn.disabled = false;
+                    forumsRefreshBtn.style.opacity = '1';
+                }
             });
         }
         
