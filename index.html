@@ -10088,7 +10088,7 @@ Definition:`;
             };
             
             post.comments.push(newComment);
-            post.commentsVisible = true; // Show comments when a new one is added
+            // Don't auto-expand comments - let user click to view
             await saveForumsPosts();
             
             // Clear and hide input
