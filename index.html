@@ -7831,41 +7831,12 @@ Definition:`;
         }
         
         // Mark warning as seen on server (for cross-device tracking)
+        // Note: API endpoint doesn't exist, so we rely on localStorage tracking only
         async function markWarningAsSeen(warning) {
-            try {
-                if (!warning || !warning.id) return;
-                
-                const device = getDeviceFingerprint();
-                const requestData = {
-                    token: canvasToken,
-                    device: device,
-                    warningId: warning.id || warning.at || 'unknown',
-                    warningUniqueId: `${warning.id || warning.at || 'unknown'}_${warning.createdAt || ''}_${(warning.reason || '').substring(0, 50)}`.trim()
-                };
-                
-                // Include user data if available
-                try {
-                    const savedUserData = localStorage.getItem('canvasUserData');
-                    if (savedUserData) {
-                        requestData.canvasData = JSON.parse(savedUserData);
-                    } else if (window.currentUserData) {
-                        requestData.canvasData = window.currentUserData;
-                    }
-                } catch (e) {
-                    // Ignore errors
-                }
-                
-                await fetch(`${ADMIN_API_BASE}/api/mark-warning-seen`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestData)
-                });
-            } catch (error) {
-                console.error('Error marking warning as seen:', error);
-                // Don't block user if this fails
-            }
+            // Warning tracking is handled via localStorage in showWarningModal()
+            // No server-side tracking needed since the endpoint doesn't exist
+            // This function is kept for compatibility but does nothing
+            return;
         }
         
         window.closeWarningModal = function() {
